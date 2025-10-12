@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Create User - Protein Planet</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 600px;
+            margin: 50px auto;
+            padding: 20px;
+            background: #f5f5f5;
+        }
+        .container {
+            background: white;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        h1 { color: #FF6B35; }
+        .btn {
+            background: #FF6B35;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 16px;
+            margin: 10px 5px;
+        }
+        .btn:hover { background: #e55a2b; }
+        .result {
+            margin-top: 20px;
+            padding: 15px;
+            border-radius: 6px;
+            display: none;
+        }
+        .success {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+        .error {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+        .info {
+            background: #d1ecf1;
+            color: #0c5460;
+            border: 1px solid #bee5eb;
+            padding: 15px;
+            border-radius: 6px;
+            margin-bottom: 20px;
+        }
+        pre {
+            background: #f8f9fa;
+            padding: 10px;
+            border-radius: 4px;
+            overflow-x: auto;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔧 Test User Creator</h1>
+        
+        <div class="info">
+            <strong>This will create TWO test users with known credentials:</strong><br><br>
+            <strong>Admin:</strong> admin@test.com / password123<br>
+            <strong>Staff:</strong> staff@test.com / password123
+        </div>
+
+        <button class="btn" onclick="createTestAdmin()">Create Admin User</button>
+        <button class="btn" onclick="createTestStaff()">Create Staff User</button>
+        <button class="btn" style="background: #6c757d;" onclick="listAllUsers()">List All Users</button>
+        
+        <div id="result" class="result"></div>
+    </div>
+
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+    <script src="js/firebase-config.js"></script>
+
+    <script>
+        function showResult(message, isSuccess) {
+            const resultDiv = document.getElementById('result');
+            resultDiv.className = 'result ' + (isSuccess ? 'success' : 'error');
+            resultDiv.innerHTML = message;
+            resultDiv.style.display = 'block';
+        }
+
+        async function createUser(email, password, name, userType) {
+            try {
+                console.log(`Creating user: ${email}`);
+                
+                // Create user in Firebase Auth
+                const userCredential = await firebaseAuth.createUserWithEmailAndPassword(email, password);
+                const user = userCredential.user;
+                
+                console.log(`User created in Auth with UID: ${user.uid}`);
+                
+                // Update profile
+                await user.updateProfile({ displayName: name });
+                
+                // Create Firestore document
+                await firebaseDb.collection('users').doc(user.uid).set({
+                    name: name,
+                    email: email,
+                    userType: userType,
+                    status: 'active',
+                    createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+                    lastLogin: null
+                });
+                
+                console.log(`User data saved to Firestore`);
+                
+                // Sign out after creating
+                await firebaseAuth.signOut();
+                
+                showResult(`
+                    ✅ <strong>SUCCESS!</strong><br><br>
+                    <strong>User Created:</strong><br>
+                    Email: ${email}<br>
+                    Password: ${password}<br>
+                    Type: ${userType}<br>
+                    UID: ${user.uid}<br><br>
+                    <strong>Now try logging in at:</strong><br>
+                    <a href="login.php" target="_blank">login.php</a>
+                `, true);
+                
+            } catch (error) {
+                console.error('Error:', error);
+                showResult(`
+                    ❌ <strong>ERROR:</strong><br>
+                    ${error.code || 'Unknown error'}<br>
+                    ${error.message}<br><br>
+                    ${error.code === 'auth/email-already-in-use' ? 
+                        '<em>This user already exists. Try logging in or use a different email.</em>' : ''}
+                `, false);
+            }
+        }
+
+        async function createTestAdmin() {
+            await createUser('admin@test.com', 'password123', 'Test Admin', 'admin');
+        }
+
+        async function createTestStaff() {
+            await createUser('staff@test.com', 'password123', 'Test Staff', 'staff');
+        }
+
+        async function listAllUsers() {
+            try {
+                const snapshot = await firebaseDb.collection('users').get();
+                
+                if (snapshot.empty) {
+                    showResult('📋 No users found in Firestore.', false);
+                    return;
+                }
+                
+                let userList = '<strong>📋 Users in Firestore:</strong><br><br>';
+                snapshot.forEach(doc => {
+                    const data = doc.data();
+                    userList += `
+                        <div style="background: #f8f9fa; padding: 10px; margin: 10px 0; border-radius: 4px;">
+                            <strong>${data.name}</strong><br>
+                            Email: ${data.email}<br>
+                            Type: <strong>${data.userType}</strong><br>
+                            Status: ${data.status}<br>
+                            UID: ${doc.id}
+                        </div>
+                    `;
+                });
+                
+                showResult(userList, true);
+                
+            } catch (error) {
+                console.error('Error listing users:', error);
+                showResult(`❌ Error: ${error.message}`, false);
+            }
+        }
+    </script>
+</body>
+</html>
+

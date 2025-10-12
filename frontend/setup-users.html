@@ -1,0 +1,370 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Setup Users - Protein Planet</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Poppins', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 16px;
+            padding: 40px;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.2);
+        }
+        h1 {
+            color: #2C3E50;
+            margin-bottom: 10px;
+            font-size: 32px;
+        }
+        .subtitle {
+            color: #7F8C8D;
+            margin-bottom: 30px;
+            font-size: 16px;
+        }
+        .warning {
+            background: #fff8e1;
+            border-left: 4px solid #FFB627;
+            padding: 15px;
+            margin-bottom: 30px;
+            border-radius: 4px;
+        }
+        .info-box {
+            background: #e8f8f0;
+            border-left: 4px solid #27AE60;
+            padding: 15px;
+            margin-bottom: 30px;
+            border-radius: 4px;
+        }
+        .form-group {
+            margin-bottom: 20px;
+        }
+        label {
+            display: block;
+            font-weight: 500;
+            color: #2C3E50;
+            margin-bottom: 8px;
+        }
+        input, select {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-family: 'Poppins', sans-serif;
+            font-size: 15px;
+        }
+        input:focus, select:focus {
+            outline: none;
+            border-color: #FF6B35;
+        }
+        .btn {
+            width: 100%;
+            padding: 14px;
+            background: linear-gradient(135deg, #FF6B35 0%, #004E89 100%);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            font-family: 'Poppins', sans-serif;
+            transition: all 0.3s;
+        }
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(255, 107, 53, 0.4);
+        }
+        .btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+        .btn-secondary {
+            background: #7F8C8D;
+            margin-top: 20px;
+        }
+        .btn-secondary:hover {
+            box-shadow: 0 6px 20px rgba(127, 140, 141, 0.4);
+        }
+        .message {
+            padding: 12px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            display: none;
+        }
+        .message.success {
+            background: #e8f8f0;
+            color: #27AE60;
+            border-left: 4px solid #27AE60;
+        }
+        .message.error {
+            background: #fee;
+            color: #E74C3C;
+            border-left: 4px solid #E74C3C;
+        }
+        .message.show {
+            display: block;
+            animation: slideDown 0.3s ease;
+        }
+        @keyframes slideDown {
+            from {
+                opacity: 0;
+                transform: translateY(-10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        .users-list {
+            margin-top: 40px;
+        }
+        .user-item {
+            padding: 15px;
+            background: #f8f9fa;
+            border-radius: 8px;
+            margin-bottom: 10px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            animation: fadeIn 0.3s ease;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+        .user-info {
+            flex: 1;
+        }
+        .user-name {
+            font-weight: 600;
+            color: #2C3E50;
+        }
+        .user-email {
+            font-size: 14px;
+            color: #7F8C8D;
+        }
+        .user-badge {
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+        .badge-admin {
+            background: #FF6B35;
+            color: white;
+        }
+        .badge-staff {
+            background: #004E89;
+            color: white;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔥 Setup Users - Protein Planet</h1>
+        <p class="subtitle">Add admin and staff users to your Firebase project</p>
+
+        <div class="warning">
+            <strong>⚠️ Security Warning:</strong> This page should only be used for initial setup. 
+            Delete this file after creating your users!
+        </div>
+
+        <div class="info-box">
+            <strong>✅ Quick Setup:</strong><br>
+            1. Create an admin user (e.g., admin@proteinplanet.com)<br>
+            2. Create a staff user (e.g., staff@proteinplanet.com)<br>
+            3. Click "Go to Login" below to test<br>
+            4. Delete this file for security!
+        </div>
+
+        <div id="messageContainer"></div>
+
+        <form id="addUserForm">
+            <div class="form-group">
+                <label for="name">Full Name</label>
+                <input type="text" id="name" placeholder="Enter full name" required>
+            </div>
+
+            <div class="form-group">
+                <label for="email">Email Address</label>
+                <input type="email" id="email" placeholder="Enter email address" required>
+            </div>
+
+            <div class="form-group">
+                <label for="password">Password</label>
+                <input type="password" id="password" placeholder="Enter password (min 6 characters)" required minlength="6">
+            </div>
+
+            <div class="form-group">
+                <label for="userType">User Type</label>
+                <select id="userType" required>
+                    <option value="admin">Admin</option>
+                    <option value="staff">Staff</option>
+                </select>
+            </div>
+
+            <button type="submit" class="btn" id="submitBtn">Create User</button>
+        </form>
+
+        <button onclick="window.location.href='login.php'" class="btn btn-secondary">
+            Go to Login Page →
+        </button>
+
+        <div class="users-list">
+            <h3 style="margin-bottom: 15px; color: #2C3E50;">Created Users</h3>
+            <div id="usersList">
+                <p style="color: #7F8C8D; font-size: 14px;">Loading users...</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+    
+    <!-- Firebase Configuration -->
+    <script src="js/firebase-config.js"></script>
+
+    <script>
+        const addUserForm = document.getElementById('addUserForm');
+        const submitBtn = document.getElementById('submitBtn');
+        const usersList = document.getElementById('usersList');
+        const createdUsers = [];
+
+        addUserForm.addEventListener('submit', async function(e) {
+            e.preventDefault();
+
+            const name = document.getElementById('name').value.trim();
+            const email = document.getElementById('email').value.trim();
+            const password = document.getElementById('password').value;
+            const userType = document.getElementById('userType').value;
+
+            submitBtn.disabled = true;
+            submitBtn.textContent = 'Creating...';
+
+            try {
+                // Create user in Firebase Authentication
+                const userCredential = await firebaseAuth.createUserWithEmailAndPassword(email, password);
+                const user = userCredential.user;
+
+                // Update display name
+                await user.updateProfile({
+                    displayName: name
+                });
+
+                // Save user metadata to Firestore
+                await firebaseDb.collection('users').doc(user.uid).set({
+                    name: name,
+                    email: email,
+                    userType: userType,
+                    status: 'active',
+                    createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+                    lastLogin: null
+                });
+
+                showMessage(`✅ ${userType.toUpperCase()} user created successfully: ${email}`, 'success');
+                
+                // Add to list
+                createdUsers.push({ name, email, userType });
+                updateUsersList();
+
+                // Clear form
+                addUserForm.reset();
+
+                // Sign out the newly created user so they don't stay logged in
+                await firebaseAuth.signOut();
+
+            } catch (error) {
+                console.error('Error creating user:', error);
+                
+                let errorMessage = 'Failed to create user.';
+                
+                switch (error.code) {
+                    case 'auth/email-already-in-use':
+                        errorMessage = 'This email is already registered.';
+                        break;
+                    case 'auth/invalid-email':
+                        errorMessage = 'Invalid email address.';
+                        break;
+                    case 'auth/weak-password':
+                        errorMessage = 'Password is too weak. Use at least 6 characters.';
+                        break;
+                    case 'permission-denied':
+                        errorMessage = 'Firestore permission denied. Make sure you set up Firestore security rules!';
+                        break;
+                    default:
+                        errorMessage = error.message;
+                }
+                
+                showMessage('❌ ' + errorMessage, 'error');
+            } finally {
+                submitBtn.disabled = false;
+                submitBtn.textContent = 'Create User';
+            }
+        });
+
+        function showMessage(message, type) {
+            const messageContainer = document.getElementById('messageContainer');
+            messageContainer.innerHTML = `<div class="message ${type} show">${message}</div>`;
+            
+            setTimeout(() => {
+                const msg = messageContainer.querySelector('.message');
+                if (msg) msg.classList.remove('show');
+            }, 5000);
+        }
+
+        function updateUsersList() {
+            if (createdUsers.length === 0) {
+                usersList.innerHTML = '<p style="color: #7F8C8D; font-size: 14px;">No users created yet...</p>';
+                return;
+            }
+
+            usersList.innerHTML = createdUsers.map(user => `
+                <div class="user-item">
+                    <div class="user-info">
+                        <div class="user-name">${user.name}</div>
+                        <div class="user-email">${user.email}</div>
+                    </div>
+                    <span class="user-badge badge-${user.userType}">${user.userType}</span>
+                </div>
+            `).join('');
+        }
+
+        // Load existing users on page load
+        window.addEventListener('load', () => {
+            firebaseDb.collection('users').get().then(snapshot => {
+                if (snapshot.empty) {
+                    usersList.innerHTML = '<p style="color: #7F8C8D; font-size: 14px;">No users created yet...</p>';
+                    return;
+                }
+                
+                snapshot.forEach(doc => {
+                    const userData = doc.data();
+                    createdUsers.push({
+                        name: userData.name,
+                        email: userData.email,
+                        userType: userData.userType
+                    });
+                });
+                updateUsersList();
+            }).catch(error => {
+                console.error('Error loading users:', error);
+                usersList.innerHTML = '<p style="color: #E74C3C; font-size: 14px;">⚠️ Error loading users. Make sure Firestore is enabled!</p>';
+            });
+        });
+    </script>
+</body>
+</html>
+
