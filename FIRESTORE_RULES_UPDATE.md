@@ -61,15 +61,23 @@ service cloud.firestore {
       // Anyone can read products (public landing page needs this)
       allow read: if true;
       
-      // Only admins can create or delete products
-      allow create, delete: if isAdmin();
+      // Only authenticated users (admin/staff) can create or delete products
+      allow create, delete: if isAuthenticated();
       
-      // Admins can update products, or authenticated users can update 
-      // only quantity fields (for sales)
-      allow update: if isAdmin() || 
-                      (isAuthenticated() && 
-                       request.resource.data.diff(resource.data).affectedKeys()
-                         .hasOnly(['availableQuantity', 'soldQuantity', 'updatedAt']));
+      // Authenticated users can update products (for sales and refills)
+      allow update: if isAuthenticated();
+    }
+    
+    // Stock History collection
+    match /stockHistory/{historyId} {
+      // All authenticated users can read stock history
+      allow read: if isAuthenticated();
+      
+      // Only authenticated users can create stock history records
+      allow create: if isAuthenticated();
+      
+      // Only admins can update or delete history
+      allow update, delete: if isAdmin();
     }
     
     // Sales collection
@@ -115,10 +123,15 @@ service cloud.firestore {
 - ✅ Only admins can add/edit/delete categories
 
 ### **Products Collection:**
-- ✅ All authenticated users can read products
-- ✅ Only admins can add/delete products
-- ✅ Admins can update all product fields
-- ✅ Staff can update only quantity fields (for sales)
+- ✅ Anyone can read products (public access)
+- ✅ Authenticated users can add/delete/update products
+- ✅ Allows product editing and stock refills
+
+### **Stock History Collection:**
+- ✅ Authenticated users can read stock history
+- ✅ Authenticated users can create refill records
+- ✅ Only admins can update/delete history
+- ✅ Complete audit trail of inventory purchases
 
 ### **Sales Collection:**
 - ✅ All authenticated users can read all sales
