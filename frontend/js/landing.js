@@ -177,10 +177,14 @@ function renderBrands() {
     
     brandsData.forEach(brand => {
         html += `
-            <div class="brand-card fade-in" onclick="viewBrandProducts('${brand.id}', '${brand.name}')">
-                <h3>${brand.name}</h3>
-                <p>${brand.description}</p>
-                <div class="product-count">${brand.productCount} Products</div>
+            <div class="brand-card fade-in" onclick="viewBrandProducts('${brand.id}', '${brand.name}')" title="Click to view ${brand.name} products">
+                <div class="brand-logo">🏷️</div>
+                <div class="brand-name">${brand.name}</div>
+                <p class="brand-description">${brand.description}</p>
+                <div class="product-count">${brand.productCount} Products Available</div>
+                <div style="margin-top: 15px; color: #FF6B35; font-weight: 600; position: relative; z-index: 1;">
+                    View Products →
+                </div>
             </div>
         `;
     });

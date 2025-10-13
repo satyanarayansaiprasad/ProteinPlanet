@@ -137,9 +137,10 @@
                 <a href="#home" class="nav-link active">Home</a>
                 <a href="#about" class="nav-link">About</a>
                 <a href="#brands" class="nav-link">Brands</a>
+                <a href="all-products.php" class="nav-link" style="color: #FF6B35; font-weight: 600;">🛍️ Products</a>
                 <a href="#testimonials" class="nav-link">Testimonials</a>
                 <a href="#certificates" class="nav-link">Certificates</a>
-                <a href="submit-review.php" class="nav-link" style="color: #FF6B35; font-weight: 600;">📝 Review</a>
+                <a href="submit-review.php" class="nav-link">📝 Review</a>
                 <a href="login.php" class="nav-login-btn">Login</a>
             </div>
             <div class="nav-toggle" id="navToggle">
@@ -228,10 +229,11 @@
                 </div>
                 <button class="brands-slider-btn next" onclick="slideBrands(1)" id="brandsNextBtn">›</button>
             </div>
-            <div style="text-align: center; margin-top: 30px;">
-                <a href="all-products.php" class="cta-button" style="display: inline-block; text-decoration: none;">
+            <div style="text-align: center; margin-top: 40px;">
+                <a href="all-products.php" class="cta-button" style="display: inline-block; text-decoration: none; font-size: 18px; padding: 18px 40px; box-shadow: 0 10px 25px rgba(255, 107, 53, 0.3);">
                     🛍️ View All Products
                 </a>
+                <p style="margin-top: 15px; color: #6c757d; font-size: 14px;">Browse our complete collection of supplements</p>
             </div>
         </div>
     </section>
