@@ -211,18 +211,27 @@
         </div>
     </section>
 
-    <!-- Brands Section (Dynamic) -->
+    <!-- Brands Section (Dynamic Slider) -->
     <section id="brands" class="brands-section">
         <div class="container">
             <div class="section-header">
                 <h2 class="section-title">Available Brands</h2>
                 <p class="section-subtitle">Premium Supplement Brands We Carry</p>
             </div>
-            <div id="brandsContainer" class="brands-grid">
-                <div style="text-align: center; padding: 40px; grid-column: 1/-1;">
-                    <div style="font-size: 48px; margin-bottom: 20px;">🔄</div>
-                    <p style="color: #7F8C8D;">Loading brands...</p>
+            <div class="brands-slider-wrapper">
+                <button class="brands-slider-btn prev" onclick="slideBrands(-1)" id="brandsPrevBtn">‹</button>
+                <div id="brandsContainer" class="brands-grid">
+                    <div style="text-align: center; padding: 40px; flex: 1;">
+                        <div style="font-size: 48px; margin-bottom: 20px;">🔄</div>
+                        <p style="color: #7F8C8D;">Loading brands...</p>
+                    </div>
                 </div>
+                <button class="brands-slider-btn next" onclick="slideBrands(1)" id="brandsNextBtn">›</button>
+            </div>
+            <div style="text-align: center; margin-top: 30px;">
+                <a href="all-products.php" class="cta-button" style="display: inline-block; text-decoration: none;">
+                    🛍️ View All Products
+                </a>
             </div>
         </div>
     </section>

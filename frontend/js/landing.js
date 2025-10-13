@@ -100,7 +100,7 @@ async function loadBrands() {
 
         if (brandsSnapshot.empty) {
             brandsContainer.innerHTML = `
-                <div style="text-align: center; padding: 40px; grid-column: 1/-1;">
+                <div style="text-align: center; padding: 40px; flex: 1;">
                     <div style="font-size: 48px; margin-bottom: 20px;">🏷️</div>
                     <p style="color: #7F8C8D;">No brands available yet</p>
                 </div>
@@ -108,32 +108,22 @@ async function loadBrands() {
             return;
         }
 
-        let html = '';
+        brandsData = [];
         const brandPromises = [];
 
         brandsSnapshot.forEach(doc => {
             brandPromises.push(getBrandProductCount(doc.id).then(count => ({
                 id: doc.id,
-                data: doc.data(),
+                name: doc.data().name,
+                description: doc.data().description || 'Premium supplement brand',
                 productCount: count
             })));
         });
 
-        const brandsWithCounts = await Promise.all(brandPromises);
-
-        brandsWithCounts.forEach(brand => {
-            html += `
-                <div class="brand-card fade-in" onclick="viewBrandProducts('${brand.id}', '${brand.data.name}')">
-                    <div class="brand-logo">🏷️</div>
-                    <div class="brand-name">${brand.data.name}</div>
-                    ${brand.data.description ? `<p style="color: #7F8C8D; font-size: 14px; margin-bottom: 15px;">${brand.data.description}</p>` : ''}
-                    <div class="brand-products-count">${brand.productCount} Products Available</div>
-                    <button class="brand-view-btn">View Products</button>
-                </div>
-            `;
-        });
-
-        brandsContainer.innerHTML = html;
+        brandsData = await Promise.all(brandPromises);
+        renderBrands();
+        updateBrandsPerView();
+        startBrandsAutoSlide();
 
         // Trigger scroll animations
         observeElements();
@@ -147,7 +137,7 @@ async function loadBrands() {
         }
         
         document.getElementById('brandsContainer').innerHTML = `
-            <div style="text-align: center; padding: 40px; grid-column: 1/-1; background: white; border-radius: 12px;">
+            <div style="text-align: center; padding: 40px; flex: 1; background: white; border-radius: 12px;">
                 <div style="font-size: 48px; margin-bottom: 20px;">⚠️</div>
                 <h3 style="color: #2C3E50; margin-bottom: 15px;">Firestore Rules Update Required</h3>
                 <p style="color: #7F8C8D; margin-bottom: 20px;">${errorMessage}</p>
@@ -166,6 +156,24 @@ async function loadBrands() {
             </div>
         `;
     }
+}
+
+// Render brands for slider
+function renderBrands() {
+    const brandsContainer = document.getElementById('brandsContainer');
+    let html = '';
+    
+    brandsData.forEach(brand => {
+        html += `
+            <div class="brand-card fade-in" onclick="viewBrandProducts('${brand.id}', '${brand.name}')">
+                <h3>${brand.name}</h3>
+                <p>${brand.description}</p>
+                <div class="product-count">${brand.productCount} Products</div>
+            </div>
+        `;
+    });
+    
+    brandsContainer.innerHTML = html;
 }
 
 // Get product count for a brand
@@ -429,3 +437,80 @@ document.querySelectorAll('a[href^="#"]').forEach(anchor => {
 
 console.log('🎨 Landing page loaded!');
 
+
+
+// Brands slider variables
+let currentBrandIndex = 0;
+let brandsPerView = 3;
+let brandsData = [];
+let brandsInterval;
+
+// Brands slider functionality
+function slideBrands(direction) {
+    if (brandsData.length === 0) return;
+    
+    const totalBrands = brandsData.length;
+    const maxIndex = Math.max(0, totalBrands - brandsPerView);
+    
+    currentBrandIndex += direction;
+    
+    if (currentBrandIndex < 0) {
+        currentBrandIndex = maxIndex;
+    } else if (currentBrandIndex > maxIndex) {
+        currentBrandIndex = 0;
+    }
+    
+    updateBrandsSlider();
+    updateBrandsButtons();
+}
+
+function updateBrandsSlider() {
+    const container = document.getElementById("brandsContainer");
+    if (!container) return;
+    
+    const translateX = -currentBrandIndex * (100 / brandsPerView);
+    container.style.transform = `translateX(${translateX}%)`;
+}
+
+function updateBrandsButtons() {
+    const prevBtn = document.getElementById("brandsPrevBtn");
+    const nextBtn = document.getElementById("brandsNextBtn");
+    
+    if (prevBtn) prevBtn.disabled = false;
+    if (nextBtn) nextBtn.disabled = false;
+}
+
+function startBrandsAutoSlide() {
+    if (brandsInterval) {
+        clearInterval(brandsInterval);
+    }
+    
+    brandsInterval = setInterval(() => {
+        slideBrands(1);
+    }, 5000);
+}
+
+function stopBrandsAutoSlide() {
+    if (brandsInterval) {
+        clearInterval(brandsInterval);
+        brandsInterval = null;
+    }
+}
+
+// Update brands slider on window resize
+function updateBrandsPerView() {
+    if (window.innerWidth <= 768) {
+        brandsPerView = 1;
+    } else if (window.innerWidth <= 1024) {
+        brandsPerView = 2;
+    } else {
+        brandsPerView = 3;
+    }
+    
+    currentBrandIndex = 0;
+    updateBrandsSlider();
+    updateBrandsButtons();
+}
+
+// Add brands slider resize listener
+window.addEventListener("resize", updateBrandsPerView);
