@@ -68,7 +68,7 @@ function debounce(func, wait) {
 }
 
 // Load all products from Firebase
-async function loadProducts() {
+window.loadProducts = async function loadProducts() {
     try {
         isLoading = true;
         showLoadingSpinner();
@@ -87,9 +87,18 @@ async function loadProducts() {
         
         console.log('✅ Products snapshot size:', productsSnapshot.size);
         
+        if (productsSnapshot.size === 0) {
+            console.warn('⚠️ No active products found in database!');
+            console.log('Try checking:');
+            console.log('1. Are there products in Firestore?');
+            console.log('2. Do they have status="active"?');
+            console.log('3. Check Firestore security rules');
+        }
+        
         allProducts = [];
         productsSnapshot.forEach(doc => {
             const product = doc.data();
+            console.log('📄 Processing product:', doc.id, product);
             allProducts.push({
                 id: doc.id,
                 ...product
@@ -97,7 +106,9 @@ async function loadProducts() {
         });
         
         console.log('✅ All products loaded:', allProducts.length);
-        console.log('Sample product:', allProducts[0]);
+        if (allProducts.length > 0) {
+            console.log('Sample product:', allProducts[0]);
+        }
         
         // Get brand and category names
         await enrichProductsWithNames();

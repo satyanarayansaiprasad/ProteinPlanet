@@ -104,6 +104,9 @@
                 <div class="loading-spinner">
                     <div class="spinner"></div>
                     <p>Loading products...</p>
+                    <button onclick="window.loadProducts()" style="margin-top: 20px; padding: 10px 20px; background: #FF6B35; color: white; border: none; border-radius: 8px; cursor: pointer;">
+                        🔄 Retry Loading
+                    </button>
                 </div>
             </div>
             
