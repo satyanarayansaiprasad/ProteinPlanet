@@ -192,7 +192,7 @@
                     <div id="imagePreview" style="margin-top: 10px; display: none;">
                         <img id="previewImg" style="max-width: 200px; max-height: 200px; border-radius: 8px; border: 2px solid #e0e0e0;">
                     </div>
-                    <small style="color: #7F8C8D; display: block; margin-top: 5px;">Accepts: JPG, PNG, WebP, GIF | Max 2MB</small>
+                    <small style="color: #7F8C8D; display: block; margin-top: 5px;">Accepts: JPG, PNG, WebP, GIF | Max 500KB (auto-compressed)</small>
                 </div>
 
                 <div class="form-group">
@@ -264,28 +264,77 @@
         // Set today's date as default for purchase date
         document.getElementById('purchaseDate').valueAsDate = new Date();
 
-        // Image preview functionality
-        document.getElementById('productImage').addEventListener('change', function(e) {
+        // Image preview and compression functionality
+        document.getElementById('productImage').addEventListener('change', async function(e) {
             const file = e.target.files[0];
             if (file) {
-                // Check file size (max 2MB)
-                if (file.size > 2 * 1024 * 1024) {
-                    alert('Image size should be less than 2MB');
-                    this.value = '';
-                    return;
+                // Show processing message for large files
+                if (file.size > 500 * 1024) {
+                    console.log('Large image detected, will compress to ~500x500px');
                 }
                 
-                // Show preview
-                const reader = new FileReader();
-                reader.onload = function(event) {
-                    document.getElementById('previewImg').src = event.target.result;
+                // Compress and show preview
+                try {
+                    const compressedImage = await compressImage(file, 500, 500, 0.7);
+                    
+                    // Check compressed size
+                    const base64Length = compressedImage.length - 'data:image/jpeg;base64,'.length;
+                    const sizeInKB = Math.round((base64Length * 3) / 4 / 1024);
+                    console.log(`Image compressed to approximately ${sizeInKB}KB`);
+                    
+                    document.getElementById('previewImg').src = compressedImage;
                     document.getElementById('imagePreview').style.display = 'block';
-                };
-                reader.readAsDataURL(file);
+                } catch (error) {
+                    console.error('Error processing image:', error);
+                    alert('Error processing image. Please try another image.');
+                    this.value = '';
+                }
             } else {
                 document.getElementById('imagePreview').style.display = 'none';
             }
         });
+
+        // Image compression function
+        function compressImage(file, maxWidth, maxHeight, quality) {
+            return new Promise((resolve, reject) => {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    const img = new Image();
+                    img.onload = function() {
+                        const canvas = document.createElement('canvas');
+                        let width = img.width;
+                        let height = img.height;
+                        
+                        // Calculate new dimensions
+                        if (width > height) {
+                            if (width > maxWidth) {
+                                height *= maxWidth / width;
+                                width = maxWidth;
+                            }
+                        } else {
+                            if (height > maxHeight) {
+                                width *= maxHeight / height;
+                                height = maxHeight;
+                            }
+                        }
+                        
+                        canvas.width = width;
+                        canvas.height = height;
+                        
+                        const ctx = canvas.getContext('2d');
+                        ctx.drawImage(img, 0, 0, width, height);
+                        
+                        // Convert to base64
+                        const compressedBase64 = canvas.toDataURL(file.type || 'image/jpeg', quality);
+                        resolve(compressedBase64);
+                    };
+                    img.onerror = reject;
+                    img.src = e.target.result;
+                };
+                reader.onerror = reject;
+                reader.readAsDataURL(file);
+            });
+        }
 
         // Load brands and categories
         async function loadBrandsAndCategories() {
@@ -405,31 +454,21 @@
                     updatedAt: firebase.firestore.FieldValue.serverTimestamp()
                 };
 
-                // Upload image if provided
-                let imageUrl = null;
+                // Process image if provided (compress and convert to base64)
                 if (imageFile) {
                     try {
-                        showMessage('📤 Uploading image...', 'info');
-                        const storageRef = storage.ref();
-                        const fileName = `${Date.now()}_${imageFile.name.replace(/[^a-zA-Z0-9.-]/g, '_')}`;
-                        const imageRef = storageRef.child(`products/${fileName}`);
+                        showMessage('📤 Processing image...', 'info');
                         
-                        // Upload with metadata
-                        const metadata = {
-                            contentType: imageFile.type,
-                            customMetadata: {
-                                uploadedBy: firebase.auth().currentUser.uid,
-                                uploadedAt: new Date().toISOString()
-                            }
-                        };
+                        // Compress and convert to base64
+                        const compressedBase64 = await compressImage(imageFile, 500, 500, 0.7);
                         
-                        await imageRef.put(imageFile, metadata);
-                        imageUrl = await imageRef.getDownloadURL();
-                        productData.imageUrl = imageUrl;
-                        console.log('✅ Image uploaded successfully:', imageUrl);
+                        productData.imageUrl = compressedBase64;
+                        productData.imageType = imageFile.type;
+                        productData.imageName = imageFile.name;
+                        console.log('✅ Image compressed and saved (base64)');
                     } catch (uploadError) {
-                        console.error('Image upload error:', uploadError);
-                        showMessage('⚠️ Image upload failed, but product will be added without image. Error: ' + uploadError.message, 'error');
+                        console.error('Image processing error:', uploadError);
+                        showMessage('⚠️ Image processing failed, product will be added without image.', 'error');
                         // Continue without image
                     }
                 }
