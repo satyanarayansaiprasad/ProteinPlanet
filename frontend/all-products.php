@@ -88,17 +88,6 @@
     <!-- Products Grid -->
     <section class="products-section">
         <div class="container">
-            <div class="products-stats">
-                <div class="stat-item">
-                    <span class="stat-number" id="totalProducts">0</span>
-                    <span class="stat-label">Total Products</span>
-                </div>
-                <div class="stat-item">
-                    <span class="stat-number" id="displayedProducts">0</span>
-                    <span class="stat-label">Showing</span>
-                </div>
-            </div>
-            
             <div id="productsGrid" class="products-grid">
                 <!-- Loading spinner -->
                 <div class="loading-spinner">
