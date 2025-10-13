@@ -19,52 +19,112 @@ function processPHPFile(filePath) {
 }
 
 // Serve static files from frontend directory (CSS, JS, images, etc.)
-app.use(express.static(path.join(__dirname, 'frontend')));
+app.use('/css', express.static(path.join(__dirname, 'frontend', 'css')));
+app.use('/js', express.static(path.join(__dirname, 'frontend', 'js')));
+app.use('/img', express.static(path.join(__dirname, 'frontend', 'img')));
+app.use('/includes', express.static(path.join(__dirname, 'frontend', 'includes')));
 
-// Handle all routes - this catches everything
-app.get('*', (req, res) => {
-    const requestedPath = req.path;
-    
-    // If it's a static file (CSS, JS, images), let Express handle it
-    if (requestedPath.includes('.') && !requestedPath.endsWith('.php')) {
-        const staticFilePath = path.join(__dirname, 'frontend', requestedPath);
+// Health check endpoint
+app.get('/health', (req, res) => {
+    res.json({ 
+        status: 'OK', 
+        message: 'Protein Planet Server is running!',
+        timestamp: new Date().toISOString()
+    });
+});
+
+// Define all your routes explicitly
+const routes = {
+    '/': 'index.php',
+    '/login': 'login.php',
+    '/admin_dashboard': 'admin_dashboard.php',
+    '/pos-sale': 'pos-sale.php',
+    '/sales-history': 'sales-history.php',
+    '/staff_dashboard': 'staff_dashboard.php',
+    '/manage-brands': 'manage-brands.php',
+    '/manage-categories': 'manage-categories.php',
+    '/view-products': 'view-products.php',
+    '/add-product': 'add-product.php',
+    '/customer-purchases': 'customer-purchases.php',
+    '/staff-pos': 'staff-pos.php',
+    '/staff-sales-history': 'staff-sales-history.php',
+    '/staff-products': 'staff-products.php',
+    '/submit-review': 'submit-review.php',
+    '/brand-products': 'brand-products.php',
+    '/reset-password': 'reset-password.php'
+};
+
+// Handle all defined routes
+Object.keys(routes).forEach(route => {
+    app.get(route, (req, res) => {
+        const phpFilePath = path.join(__dirname, 'frontend', routes[route]);
+        const htmlContent = processPHPFile(phpFilePath);
         
-        // If static file exists, serve it normally
-        if (fs.existsSync(staticFilePath)) {
-            return res.sendFile(staticFilePath);
+        if (htmlContent) {
+            res.setHeader('Content-Type', 'text/html; charset=utf-8');
+            res.setHeader('Cache-Control', 'no-cache');
+            res.send(htmlContent);
+        } else {
+            res.status(404).send(`
+                <html>
+                    <head><title>404 - Page Not Found</title></head>
+                    <body>
+                        <h1>404 - Page Not Found</h1>
+                        <p>The requested page could not be found.</p>
+                        <a href="/">Go to Home</a>
+                    </body>
+                </html>
+            `);
         }
-    }
-    
-    // Try to find the requested PHP file
-    let phpFilePath;
-    
-    // If path ends with .php, use it directly
-    if (requestedPath.endsWith('.php')) {
-        phpFilePath = path.join(__dirname, 'frontend', requestedPath);
-    } else {
-        // Try adding .php extension
-        phpFilePath = path.join(__dirname, 'frontend', requestedPath + '.php');
-        
-        // If that doesn't exist, try with /index.php
-        if (!fs.existsSync(phpFilePath)) {
-            phpFilePath = path.join(__dirname, 'frontend', requestedPath, 'index.php');
-        }
-    }
-    
-    // Process the PHP file
+    });
+});
+
+// Handle direct PHP file requests
+app.get('*.php', (req, res) => {
+    const phpFilePath = path.join(__dirname, 'frontend', req.path);
     const htmlContent = processPHPFile(phpFilePath);
     
     if (htmlContent) {
-        // Set proper content type for HTML
         res.setHeader('Content-Type', 'text/html; charset=utf-8');
+        res.setHeader('Cache-Control', 'no-cache');
         res.send(htmlContent);
     } else {
-        // If no PHP file found, try to serve index.php as fallback
+        res.status(404).send(`
+            <html>
+                <head><title>404 - File Not Found</title></head>
+                <body>
+                    <h1>404 - File Not Found</h1>
+                    <p>The requested PHP file could not be found.</p>
+                    <a href="/">Go to Home</a>
+                </body>
+            </html>
+        `);
+    }
+});
+
+// Catch-all route for any other requests
+app.get('*', (req, res) => {
+    // Try to find a PHP file for this route
+    let phpFilePath = path.join(__dirname, 'frontend', req.path + '.php');
+    
+    if (!fs.existsSync(phpFilePath)) {
+        phpFilePath = path.join(__dirname, 'frontend', req.path, 'index.php');
+    }
+    
+    const htmlContent = processPHPFile(phpFilePath);
+    
+    if (htmlContent) {
+        res.setHeader('Content-Type', 'text/html; charset=utf-8');
+        res.setHeader('Cache-Control', 'no-cache');
+        res.send(htmlContent);
+    } else {
+        // Fallback to index.php
         const indexPath = path.join(__dirname, 'frontend', 'index.php');
         const indexContent = processPHPFile(indexPath);
         
         if (indexContent) {
             res.setHeader('Content-Type', 'text/html; charset=utf-8');
+            res.setHeader('Cache-Control', 'no-cache');
             res.send(indexContent);
         } else {
             res.status(404).send(`
@@ -79,15 +139,6 @@ app.get('*', (req, res) => {
             `);
         }
     }
-});
-
-// Health check endpoint
-app.get('/health', (req, res) => {
-    res.json({ 
-        status: 'OK', 
-        message: 'Protein Planet Server is running!',
-        timestamp: new Date().toISOString()
-    });
 });
 
 app.listen(PORT, () => {
