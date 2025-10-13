@@ -116,6 +116,11 @@
             color: #721c24;
             border-left: 4px solid #dc3545;
         }
+        .message.info {
+            background: #d1ecf1;
+            color: #0c5460;
+            border-left: 4px solid #17a2b8;
+        }
         .info-card {
             background: #e8f4f8;
             border-left: 4px solid #3498db;
@@ -180,6 +185,16 @@
                     <input type="text" id="productName" placeholder="e.g., Gold Standard Whey Protein 2lbs" required>
                 </div>
 
+                <!-- Product Image Upload -->
+                <div class="form-group">
+                    <label for="productImage">Product Image (Optional)</label>
+                    <input type="file" id="productImage" accept="image/*" style="padding: 8px;">
+                    <div id="imagePreview" style="margin-top: 10px; display: none;">
+                        <img id="previewImg" style="max-width: 200px; max-height: 200px; border-radius: 8px; border: 2px solid #e0e0e0;">
+                    </div>
+                    <small style="color: #7F8C8D; display: block; margin-top: 5px;">Recommended: 500x500px, Max 2MB</small>
+                </div>
+
                 <div class="form-group">
                     <label for="productDescription">Description (Optional)</label>
                     <textarea id="productDescription" placeholder="Product description, flavor, etc."></textarea>
@@ -238,12 +253,39 @@
     <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-storage-compat.js"></script>
     <script src="js/firebase-config.js"></script>
     <script src="js/auth-check.js"></script>
 
     <script>
+        // Initialize Firebase Storage
+        const storage = firebase.storage();
+        
         // Set today's date as default for purchase date
         document.getElementById('purchaseDate').valueAsDate = new Date();
+
+        // Image preview functionality
+        document.getElementById('productImage').addEventListener('change', function(e) {
+            const file = e.target.files[0];
+            if (file) {
+                // Check file size (max 2MB)
+                if (file.size > 2 * 1024 * 1024) {
+                    alert('Image size should be less than 2MB');
+                    this.value = '';
+                    return;
+                }
+                
+                // Show preview
+                const reader = new FileReader();
+                reader.onload = function(event) {
+                    document.getElementById('previewImg').src = event.target.result;
+                    document.getElementById('imagePreview').style.display = 'block';
+                };
+                reader.readAsDataURL(file);
+            } else {
+                document.getElementById('imagePreview').style.display = 'none';
+            }
+        });
 
         // Load brands and categories
         async function loadBrandsAndCategories() {
@@ -327,6 +369,7 @@
             const expiryDate = document.getElementById('expiryDate').value;
             const buyingPrice = parseFloat(document.getElementById('buyingPrice').value);
             const quantity = parseInt(document.getElementById('quantity').value);
+            const imageFile = document.getElementById('productImage').files[0];
             const sellingPrice = parseFloat(document.getElementById('sellingPrice').value);
             const barcode = document.getElementById('barcode').value.trim();
 
@@ -362,6 +405,17 @@
                     updatedAt: firebase.firestore.FieldValue.serverTimestamp()
                 };
 
+                // Upload image if provided
+                let imageUrl = null;
+                if (imageFile) {
+                    showMessage('Uploading image...', 'info');
+                    const storageRef = storage.ref();
+                    const imageRef = storageRef.child(`products/${Date.now()}_${imageFile.name}`);
+                    const uploadTask = await imageRef.put(imageFile);
+                    imageUrl = await uploadTask.ref.getDownloadURL();
+                    productData.imageUrl = imageUrl;
+                }
+
                 await firebaseDb.collection('products').add(productData);
                 
                 showMessage('✅ Product added to inventory successfully!', 'success');
@@ -371,6 +425,7 @@
                     document.getElementById('productForm').reset();
                     document.getElementById('purchaseDate').valueAsDate = new Date();
                     document.getElementById('profitInfo').style.display = 'none';
+                    document.getElementById('imagePreview').style.display = 'none';
                 }, 2000);
 
             } catch (error) {
