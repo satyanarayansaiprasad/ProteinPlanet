@@ -25,7 +25,6 @@
     <link rel="icon" type="image/x-icon" href="img/favicon.ico">
     
     <!-- CSS -->
-    <link rel="stylesheet" href="css/landing.css">
     <link rel="stylesheet" href="css/all-products.css">
     
     <!-- Structured Data -->
