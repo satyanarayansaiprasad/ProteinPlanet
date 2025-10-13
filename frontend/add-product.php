@@ -408,14 +408,33 @@
                 // Upload image if provided
                 let imageUrl = null;
                 if (imageFile) {
-                    showMessage('Uploading image...', 'info');
-                    const storageRef = storage.ref();
-                    const imageRef = storageRef.child(`products/${Date.now()}_${imageFile.name}`);
-                    const uploadTask = await imageRef.put(imageFile);
-                    imageUrl = await uploadTask.ref.getDownloadURL();
-                    productData.imageUrl = imageUrl;
+                    try {
+                        showMessage('📤 Uploading image...', 'info');
+                        const storageRef = storage.ref();
+                        const fileName = `${Date.now()}_${imageFile.name.replace(/[^a-zA-Z0-9.-]/g, '_')}`;
+                        const imageRef = storageRef.child(`products/${fileName}`);
+                        
+                        // Upload with metadata
+                        const metadata = {
+                            contentType: imageFile.type,
+                            customMetadata: {
+                                uploadedBy: firebase.auth().currentUser.uid,
+                                uploadedAt: new Date().toISOString()
+                            }
+                        };
+                        
+                        await imageRef.put(imageFile, metadata);
+                        imageUrl = await imageRef.getDownloadURL();
+                        productData.imageUrl = imageUrl;
+                        console.log('✅ Image uploaded successfully:', imageUrl);
+                    } catch (uploadError) {
+                        console.error('Image upload error:', uploadError);
+                        showMessage('⚠️ Image upload failed, but product will be added without image. Error: ' + uploadError.message, 'error');
+                        // Continue without image
+                    }
                 }
 
+                showMessage('💾 Saving product...', 'info');
                 await firebaseDb.collection('products').add(productData);
                 
                 showMessage('✅ Product added to inventory successfully!', 'success');
