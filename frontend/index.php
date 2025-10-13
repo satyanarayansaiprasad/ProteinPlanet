@@ -135,9 +135,9 @@
             </div>
             <div class="nav-menu" id="navMenu">
                 <a href="#home" class="nav-link active">Home</a>
-                <a href="#about" class="nav-link">About</a>
-                <a href="#brands" class="nav-link">Brands</a>
-                <a href="#testimonials" class="nav-link">Testimonials</a>
+                <a href="#about" class="nav-link">Our Journey</a>
+                <a href="#brands" class="nav-link">Products</a>
+                <a href="#testimonials" class="nav-link">Reviews</a>
                 <a href="#certificates" class="nav-link">Certificates</a>
                 <a href="submit-review.php" class="nav-link" style="color: #FF6B35; font-weight: 600;">📝 Review</a>
                 <a href="login.php" class="nav-login-btn">Login</a>
@@ -150,102 +150,264 @@
         </div>
     </nav>
 
-    <!-- Hero Section with Slider -->
+    <!-- Hero Section with Modern Design -->
     <section id="home" class="hero-section">
-        <div class="slider-container">
-            <div class="slide active" style="background-image: url('img/slider/1.jpeg');">
-                <div class="slide-content">
-                    <div class="slide-text">
-                        <h1 class="slide-title">Fuel Your Fitness Journey</h1>
-                        <p class="slide-subtitle">Premium Quality Supplements for Maximum Results</p>
-                        <button class="cta-button" onclick="window.location.href='#brands'">Explore Products</button>
+        <div class="hero-container">
+            <div class="hero-content">
+                <div class="hero-text">
+                    <h1 class="hero-title">Protein Planet</h1>
+                    <p class="hero-subtitle">Premium Member's Store</p>
+                    <p class="hero-description">Your trusted partner in achieving fitness excellence. Premium supplements, expert guidance.</p>
+                    <div class="hero-buttons">
+                        <button class="cta-button primary" onclick="window.location.href='#brands'">Explore Products</button>
+                        <button class="cta-button secondary" onclick="window.location.href='#about'">Our Journey</button>
                     </div>
                 </div>
-            </div>
-            <div class="slide" style="background-image: url('img/slider/2.jpeg');">
-                <div class="slide-content">
-                    <div class="slide-text">
-                        <h1 class="slide-title">Trusted by Athletes</h1>
-                        <p class="slide-subtitle">100% Authentic Products, Best Prices Guaranteed</p>
-                        <button class="cta-button" onclick="window.location.href='#brands'">Shop Now</button>
+                <div class="hero-image">
+                    <div class="image-slider">
+                        <div class="slider-item active" style="background-image: url('img/slider/1.jpeg');"></div>
+                        <div class="slider-item" style="background-image: url('img/slider/2.jpeg');"></div>
+                    </div>
+                    <div class="slider-controls">
+                        <button class="slider-btn prev" onclick="changeSlide(-1)">‹</button>
+                        <div class="slider-dots" id="sliderDots"></div>
+                        <button class="slider-btn next" onclick="changeSlide(1)">›</button>
                     </div>
                 </div>
             </div>
         </div>
-        <div class="slider-controls">
-            <button class="slider-btn prev" onclick="changeSlide(-1)">‹</button>
-            <div class="slider-dots" id="sliderDots"></div>
-            <button class="slider-btn next" onclick="changeSlide(1)">›</button>
+    </section>
+
+    <!-- Quick Search Section -->
+    <section class="search-section">
+        <div class="container">
+            <div class="search-container">
+                <h2>Search our store</h2>
+                <div class="search-bar">
+                    <input type="text" placeholder="Search for supplements..." id="searchInput">
+                    <button class="search-btn">Search</button>
+                </div>
+                <div class="popular-searches">
+                    <span>Popular Searches:</span>
+                    <span class="search-tag">Whey Protein</span>
+                    <span class="search-tag">Mass Gainer</span>
+                    <span class="search-tag">Pre-Workout</span>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Shop By Category Section -->
+    <section class="categories-section">
+        <div class="container">
+            <h2 class="section-title">Shop By Category</h2>
+            <div class="categories-grid" id="categoriesContainer">
+                <div class="category-card">
+                    <div class="category-image">
+                        <div class="category-icon">💪</div>
+                    </div>
+                    <h3>Whey Protein</h3>
+                    <p>Premium quality protein supplements</p>
+                </div>
+                <div class="category-card">
+                    <div class="category-image">
+                        <div class="category-icon">🏋️</div>
+                    </div>
+                    <h3>Mass Gainer</h3>
+                    <p>High calorie weight gain supplements</p>
+                </div>
+                <div class="category-card">
+                    <div class="category-image">
+                        <div class="category-icon">⚡</div>
+                    </div>
+                    <h3>Pre-Workout</h3>
+                    <p>Energy boosting pre-workout supplements</p>
+                </div>
+                <div class="category-card">
+                    <div class="category-image">
+                        <div class="category-icon">🥤</div>
+                    </div>
+                    <h3>Protein Shakes</h3>
+                    <p>Ready-to-drink protein beverages</p>
+                </div>
+                <div class="category-card">
+                    <div class="category-image">
+                        <div class="category-icon">💊</div>
+                    </div>
+                    <h3>Vitamins</h3>
+                    <p>Essential vitamins and minerals</p>
+                </div>
+                <div class="category-card">
+                    <div class="category-image">
+                        <div class="category-icon">🏃</div>
+                    </div>
+                    <h3>Recovery</h3>
+                    <p>Post-workout recovery supplements</p>
+                </div>
+            </div>
         </div>
     </section>
 
     <!-- About Section -->
     <section id="about" class="about-section">
         <div class="container">
-            <div class="section-header">
-                <h2 class="section-title">About Protein Planet</h2>
-                <p class="section-subtitle">Your Trusted Partner in Fitness Excellence</p>
-            </div>
             <div class="about-content">
-                <div class="about-card">
-                    <div class="about-icon">💪</div>
-                    <h3>Premium Quality</h3>
-                    <p>We offer only 100% authentic supplements from world-renowned brands. Every product is verified for quality and authenticity.</p>
+                <div class="about-text">
+                    <h2 class="section-title">Our Journey</h2>
+                    <h3 class="about-subtitle">INTRODUCING ROURKELA'S ONLY PREMIUM SUPPLEMENT COMPANY</h3>
+                    <p class="about-description">
+                        Fast forward to today, with a community of fitness enthusiasts and athletes who trust us for their supplement needs... here we are! But guess what? This is just the beginning.
+                    </p>
+                    <button class="cta-button" onclick="window.location.href='#brands'">Know More</button>
                 </div>
-                <div class="about-card">
-                    <div class="about-icon">🏆</div>
-                    <h3>Expert Guidance</h3>
-                    <p>Our knowledgeable staff helps you choose the right supplements for your specific fitness goals and nutrition needs.</p>
-                </div>
-                <div class="about-card">
-                    <div class="about-icon">💯</div>
-                    <h3>Best Prices</h3>
-                    <p>Competitive pricing with regular offers and discounts. Get premium supplements without breaking the bank.</p>
-                </div>
-                <div class="about-card">
-                    <div class="about-icon">🚀</div>
-                    <h3>Fast Delivery</h3>
-                    <p>Quick and reliable service. Visit our store or get your supplements delivered to your doorstep.</p>
+                <div class="about-stats">
+                    <div class="stat-item">
+                        <div class="stat-number">5000+</div>
+                        <div class="stat-label">Happy Customers</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-number">100+</div>
+                        <div class="stat-label">Premium Products</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-number">5+</div>
+                        <div class="stat-label">Years Experience</div>
+                    </div>
                 </div>
             </div>
         </div>
     </section>
 
-    <!-- Brands Section (Dynamic) -->
-    <section id="brands" class="brands-section">
+    <!-- Featured Products Section -->
+    <section id="brands" class="products-section">
         <div class="container">
             <div class="section-header">
-                <h2 class="section-title">Available Brands</h2>
+                <h2 class="section-title">✨ Best Selling</h2>
                 <p class="section-subtitle">Premium Supplement Brands We Carry</p>
             </div>
-            <div id="brandsContainer" class="brands-grid">
-                <div style="text-align: center; padding: 40px; grid-column: 1/-1;">
-                    <div style="font-size: 48px; margin-bottom: 20px;">🔄</div>
-                    <p style="color: #7F8C8D;">Loading brands...</p>
+            <div id="brandsContainer" class="products-grid">
+                <div class="loading-state">
+                    <div class="loading-icon">🔄</div>
+                    <p>Loading products...</p>
                 </div>
             </div>
         </div>
     </section>
 
-    <!-- Testimonials Section (Dynamic Slider) -->
+    <!-- Comparison Section -->
+    <section class="comparison-section">
+        <div class="container">
+            <h2 class="section-title">Protein Planet vs the rest</h2>
+            <div class="comparison-grid">
+                <div class="comparison-item">
+                    <h3>Junk Food</h3>
+                    <div class="comparison-details">
+                        <div class="detail-row">
+                            <span class="label">Cost</span>
+                            <span class="value high">Too high a price</span>
+                        </div>
+                        <div class="detail-row">
+                            <span class="label">Time</span>
+                            <span class="value">Instant (just like the regret)</span>
+                        </div>
+                        <div class="detail-row">
+                            <span class="label">Nutrition</span>
+                            <span class="value low">Very low</span>
+                        </div>
+                        <div class="detail-row">
+                            <span class="label">Protein</span>
+                            <span class="value">X</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="comparison-item highlight">
+                    <h3>Protein Planet</h3>
+                    <div class="comparison-details">
+                        <div class="detail-row">
+                            <span class="label">Cost</span>
+                            <span class="value good">Moderate</span>
+                        </div>
+                        <div class="detail-row">
+                            <span class="label">Time</span>
+                            <span class="value">2 minutes</span>
+                        </div>
+                        <div class="detail-row">
+                            <span class="label">Nutrition</span>
+                            <span class="value good">Very high</span>
+                        </div>
+                        <div class="detail-row">
+                            <span class="label">Protein</span>
+                            <span class="value good">Very high</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="comparison-item">
+                    <h3>Regular Food</h3>
+                    <div class="comparison-details">
+                        <div class="detail-row">
+                            <span class="label">Cost</span>
+                            <span class="value">Moderate</span>
+                        </div>
+                        <div class="detail-row">
+                            <span class="label">Time</span>
+                            <span class="value">20 mins</span>
+                        </div>
+                        <div class="detail-row">
+                            <span class="label">Nutrition</span>
+                            <span class="value">High</span>
+                        </div>
+                        <div class="detail-row">
+                            <span class="label">Protein</span>
+                            <span class="value">Hard to track but moderate</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="comparison-cta">
+                <h3>Why wait?</h3>
+                <button class="cta-button" onclick="window.location.href='login.php'">Join Protein Planet</button>
+            </div>
+        </div>
+    </section>
+
+    <!-- Live Stats Section -->
+    <section class="stats-section">
+        <div class="container">
+            <div class="stats-grid">
+                <div class="stat-item">
+                    <div class="stat-number">5000+</div>
+                    <div class="stat-label">Products sold</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-number">10K+</div>
+                    <div class="stat-label">Happy customers</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-number">1</div>
+                    <div class="stat-label">City served (Rourkela)</div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Testimonials Section -->
     <section id="testimonials" class="testimonials-section">
         <div class="container">
             <div class="section-header">
-                <h2 class="section-title">What Our Customers Say</h2>
-                <p class="section-subtitle">Real Reviews from Real Athletes</p>
+                <h2 class="section-title">FROM THOSE WHO MADE THE SWITCH</h2>
             </div>
             <div class="testimonials-slider-wrapper">
                 <button class="testimonial-slider-btn prev" onclick="slideTestimonials(-1)" id="testimonialPrevBtn">‹</button>
                 <div id="testimonialsContainer" class="testimonials-grid">
-                    <div style="text-align: center; padding: 40px; flex: 1;">
-                        <div style="font-size: 48px; margin-bottom: 20px;">🔄</div>
-                        <p style="color: #7F8C8D;">Loading reviews...</p>
+                    <div class="loading-state">
+                        <div class="loading-icon">🔄</div>
+                        <p>Loading reviews...</p>
                     </div>
                 </div>
                 <button class="testimonial-slider-btn next" onclick="slideTestimonials(1)" id="testimonialNextBtn">›</button>
             </div>
-            <div style="text-align: center; margin-top: 30px;">
-                <a href="submit-review.php" class="cta-button" style="display: inline-block; text-decoration: none;">
+            <div class="testimonials-cta">
+                <a href="submit-review.php" class="cta-button">
                     📝 Share Your Experience
                 </a>
             </div>
@@ -284,6 +446,19 @@
         </div>
     </section>
 
+    <!-- Newsletter Section -->
+    <section class="newsletter-section">
+        <div class="container">
+            <div class="newsletter-content">
+                <h2>FITNESS ABOUT HEALTH? JOIN OUR NEWSLETTER</h2>
+                <div class="newsletter-form">
+                    <input type="email" placeholder="Enter your email" id="newsletterEmail">
+                    <button class="newsletter-btn">Subscribe</button>
+                </div>
+            </div>
+        </div>
+    </section>
+
     <!-- Footer -->
     <footer class="footer">
         <div class="container">
@@ -295,9 +470,24 @@
                 <div class="footer-section">
                     <h4>Quick Links</h4>
                     <a href="#home">Home</a>
-                    <a href="#about">About</a>
-                    <a href="#brands">Brands</a>
-                    <a href="login.php">Staff Login</a>
+                    <a href="#about">Our Journey</a>
+                    <a href="#brands">Products</a>
+                    <a href="submit-review.php">Reviews & Blogs</a>
+                    <a href="login.php">Contact Us</a>
+                    <a href="login.php">Track Order</a>
+                </div>
+                <div class="footer-section">
+                    <h4>Partner With Us</h4>
+                    <a href="#about">Become a Distributor</a>
+                    <a href="#about">Protein Planet Global</a>
+                </div>
+                <div class="footer-section">
+                    <h4>Policies</h4>
+                    <a href="#about">Terms & Conditions</a>
+                    <a href="#about">FAQ's</a>
+                    <a href="#about">Shipping</a>
+                    <a href="#about">Privacy Policy</a>
+                    <a href="#about">Return & Replacement</a>
                 </div>
                 <div class="footer-section">
                     <h4>Contact Us</h4>
@@ -306,7 +496,7 @@
                 </div>
             </div>
             <div class="footer-bottom">
-                <p>&copy; 2025 Protein Planet. All rights reserved. | Built with ❤️ for fitness enthusiasts</p>
+                <p>&copy; 2025 Protein Planet. All rights reserved. | Powered by Supplements.</p>
             </div>
         </div>
     </footer>
