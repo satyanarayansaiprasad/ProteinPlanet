@@ -9,13 +9,51 @@ function processPHPFile(filePath) {
     if (fs.existsSync(filePath)) {
         let content = fs.readFileSync(filePath, 'utf8');
         
-        // Remove PHP tags and server-side code, keep only HTML/JS/CSS
+        // Process PHP includes first
+        content = processIncludes(content, path.dirname(filePath));
+        
+        // Remove remaining PHP tags and server-side code, keep only HTML/JS/CSS
         content = content.replace(/<\?php[\s\S]*?\?>/g, '');
         content = content.replace(/<\?=[\s\S]*?\?>/g, '');
         
         return content;
     }
     return null;
+}
+
+// Function to process PHP includes
+function processIncludes(content, basePath) {
+    // Find all PHP include statements
+    const includeRegex = /<\?php\s*include\s*['"]([^'"]+)['"];\s*\?>/g;
+    let match;
+    
+    while ((match = includeRegex.exec(content)) !== null) {
+        const includePath = match[1];
+        const fullPath = path.join(basePath, includePath);
+        
+        // Check if the include file exists
+        if (fs.existsSync(fullPath)) {
+            let includeContent = fs.readFileSync(fullPath, 'utf8');
+            
+            // Recursively process includes in the included file
+            includeContent = processIncludes(includeContent, path.dirname(fullPath));
+            
+            // Remove PHP tags from included content
+            includeContent = includeContent.replace(/<\?php[\s\S]*?\?>/g, '');
+            includeContent = includeContent.replace(/<\?=[\s\S]*?\?>/g, '');
+            
+            // Replace the include statement with the actual content
+            content = content.replace(match[0], includeContent);
+            
+            // Reset regex position to handle overlapping matches
+            includeRegex.lastIndex = 0;
+        } else {
+            // If file doesn't exist, remove the include statement
+            content = content.replace(match[0], '');
+        }
+    }
+    
+    return content;
 }
 
 // Serve static files from frontend directory (CSS, JS, images, etc.)
