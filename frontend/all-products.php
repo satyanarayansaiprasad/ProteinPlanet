@@ -148,6 +148,13 @@
     
     <!-- JavaScript -->
     <script>
+        // Contact function
+        function contactForProduct(productName, brandName, price) {
+            const message = `Hi! I'm interested in ${productName} from ${brandName} (₹${price}). Could you please provide more details?`;
+            const whatsappUrl = `https://wa.me/917008362528?text=${encodeURIComponent(message)}`;
+            window.open(whatsappUrl, '_blank');
+        }
+        
         // Immediate test - bypass everything
         console.log('=== DIRECT TEST ===');
         console.log('Page loaded at:', new Date());
@@ -179,12 +186,24 @@
                             let html = '';
                             activeSnapshot.forEach(doc => {
                                 const p = doc.data();
+                                const availableQty = p.availableQuantity || p.stockQuantity || 0;
+                                const stockStatus = availableQty <= 0 ? 'Out of Stock' : availableQty <= 10 ? 'Low Stock' : 'In Stock';
+                                const stockColor = availableQty <= 0 ? '#E74C3C' : availableQty <= 10 ? '#F39C12' : '#27AE60';
+                                
                                 html += `
                                     <div style="background: white; padding: 20px; border-radius: 10px; box-shadow: 0 2px 10px rgba(0,0,0,0.1);">
                                         <h3 style="color: #FF6B35; margin: 0 0 10px 0;">${p.name || 'No name'}</h3>
-                                        <p style="margin: 5px 0;">Brand: ${p.brandName || p.brandId || 'Unknown'}</p>
-                                        <p style="margin: 5px 0;">Price: ₹${p.sellingPrice || p.price || 'N/A'}</p>
-                                        <p style="margin: 5px 0;">Stock: ${p.stockQuantity || 0}</p>
+                                        <p style="margin: 5px 0; color: #666;">📦 ${p.brandName || p.brandId || 'Unknown'}</p>
+                                        <p style="margin: 5px 0; font-size: 18px; font-weight: 600; color: #27AE60;">₹${p.sellingPrice || p.price || 'N/A'}</p>
+                                        <p style="margin: 5px 0; color: ${stockColor}; font-weight: 500;">
+                                            📊 ${stockStatus} (${availableQty} units available)
+                                        </p>
+                                        <button onclick="contactForProduct('${(p.name || '').replace(/'/g, "\\'")}', '${(p.brandName || 'Unknown').replace(/'/g, "\\'")}', '${p.sellingPrice || p.price || 'N/A'}')" 
+                                                onmouseover="this.style.background='#E55A2B'; this.style.transform='translateY(-2px)'" 
+                                                onmouseout="this.style.background='#FF6B35'; this.style.transform='translateY(0)'"
+                                                style="margin-top: 15px; width: 100%; background: #FF6B35; color: white; border: none; padding: 12px; border-radius: 8px; font-weight: 600; cursor: pointer; font-size: 15px; transition: all 0.3s ease;">
+                                            💬 Contact to Purchase
+                                        </button>
                                     </div>
                                 `;
                             });
