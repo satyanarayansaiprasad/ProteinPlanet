@@ -234,6 +234,7 @@
         <nav class="nav-links">
             <a href="admin_dashboard.php" class="nav-link">Dashboard</a>
             <a href="view-products.php" class="nav-link">Products</a>
+            <a href="stock-history.php" class="nav-link">Stock History</a>
             <a href="pos-sale.php" class="nav-link">POS</a>
         </nav>
     </div>

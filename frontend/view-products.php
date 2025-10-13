@@ -256,6 +256,7 @@
                         <td>
                             <div class="action-btns">
                                 <button class="btn-sm btn-view" onclick="viewProduct('${product.id}')" title="View Details">👁️</button>
+                                <button class="btn-sm btn-edit" onclick="editProduct('${product.id}')" title="Edit/Refill Stock">✏️</button>
                                 <button class="btn-sm btn-delete" onclick="deleteProduct('${product.id}', '${product.name}')" title="Delete">🗑️</button>
                             </div>
                         </td>
@@ -375,9 +376,156 @@
             }
         }
 
+        // Edit product function
+        function editProduct(productId) {
+            const product = allProducts.find(p => p.id === productId);
+            if (!product) return;
+            
+            // Show edit modal
+            document.getElementById('editModal').style.display = 'flex';
+            document.getElementById('editProductId').value = productId;
+            document.getElementById('editProductName').value = product.name;
+            document.getElementById('editCurrentStock').textContent = product.availableQuantity;
+            document.getElementById('editBuyingPrice').value = product.buyingPrice;
+            document.getElementById('editSellingPrice').value = product.sellingPrice;
+            document.getElementById('editExpiryDate').value = product.expiryDate ? 
+                new Date(product.expiryDate.toDate()).toISOString().split('T')[0] : '';
+        }
+        
+        // Close edit modal
+        function closeEditModal() {
+            document.getElementById('editModal').style.display = 'none';
+            document.getElementById('editForm').reset();
+        }
+        
+        // Save edited product
+        async function saveEditedProduct(event) {
+            event.preventDefault();
+            
+            const productId = document.getElementById('editProductId').value;
+            const addQuantity = parseInt(document.getElementById('editAddQuantity').value) || 0;
+            const newBuyingPrice = parseFloat(document.getElementById('editBuyingPrice').value);
+            const newSellingPrice = parseFloat(document.getElementById('editSellingPrice').value);
+            const newExpiryDate = document.getElementById('editExpiryDate').value;
+            const purchaseDate = document.getElementById('editPurchaseDate').value;
+            
+            if (addQuantity <= 0) {
+                alert('Please enter a valid quantity to add');
+                return;
+            }
+            
+            try {
+                const product = allProducts.find(p => p.id === productId);
+                const newAvailableQty = (product.availableQuantity || 0) + addQuantity;
+                const newTotalStock = (product.stockQuantity || 0) + addQuantity;
+                
+                // Update product
+                await firebaseDb.collection('products').doc(productId).update({
+                    availableQuantity: newAvailableQty,
+                    stockQuantity: newTotalStock,
+                    buyingPrice: newBuyingPrice,
+                    sellingPrice: newSellingPrice,
+                    profitPerUnit: newSellingPrice - newBuyingPrice,
+                    expiryDate: firebase.firestore.Timestamp.fromDate(new Date(newExpiryDate)),
+                    updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+                });
+                
+                // Add to stock history
+                await firebaseDb.collection('stockHistory').add({
+                    productId: productId,
+                    productName: product.name,
+                    brandId: product.brandId,
+                    brandName: product.brandName,
+                    categoryId: product.categoryId,
+                    categoryName: product.categoryName,
+                    quantityAdded: addQuantity,
+                    buyingPrice: newBuyingPrice,
+                    sellingPrice: newSellingPrice,
+                    totalBuyingCost: addQuantity * newBuyingPrice,
+                    totalSellingValue: addQuantity * newSellingPrice,
+                    expectedProfit: addQuantity * (newSellingPrice - newBuyingPrice),
+                    purchaseDate: firebase.firestore.Timestamp.fromDate(new Date(purchaseDate)),
+                    expiryDate: firebase.firestore.Timestamp.fromDate(new Date(newExpiryDate)),
+                    refillDate: firebase.firestore.FieldValue.serverTimestamp(),
+                    refillBy: firebase.auth().currentUser.uid,
+                    refillByName: firebase.auth().currentUser.displayName || firebase.auth().currentUser.email,
+                    previousStock: product.availableQuantity || 0,
+                    newStock: newAvailableQty
+                });
+                
+                alert('✅ Product updated and stock history recorded!');
+                closeEditModal();
+                loadProducts();
+                
+            } catch (error) {
+                console.error('Error updating product:', error);
+                alert('Error updating product: ' + error.message);
+            }
+        }
+
         // Load products on page load
         loadProducts();
     </script>
+    
+    <!-- Edit Product Modal -->
+    <div id="editModal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 10000; align-items: center; justify-content: center;">
+        <div style="background: white; border-radius: 16px; padding: 40px; max-width: 600px; width: 90%; max-height: 90vh; overflow-y: auto; box-shadow: 0 10px 50px rgba(0,0,0,0.3);">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px;">
+                <h2 style="margin: 0; color: #2C3E50;">✏️ Edit Product / Refill Stock</h2>
+                <button onclick="closeEditModal()" style="background: none; border: none; font-size: 28px; cursor: pointer; color: #7F8C8D;">&times;</button>
+            </div>
+            
+            <form id="editForm" onsubmit="saveEditedProduct(event)">
+                <input type="hidden" id="editProductId">
+                
+                <div style="background: #f8f9fa; padding: 15px; border-radius: 8px; margin-bottom: 20px;">
+                    <strong>Product:</strong> <span id="editProductName" style="color: #FF6B35;"></span><br>
+                    <strong>Current Stock:</strong> <span id="editCurrentStock" style="color: #27AE60; font-size: 18px; font-weight: 600;"></span> units
+                </div>
+                
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 15px;">
+                    <div>
+                        <label style="display: block; margin-bottom: 5px; font-weight: 600; color: #2C3E50;">Add Quantity *</label>
+                        <input type="number" id="editAddQuantity" min="1" required 
+                               style="width: 100%; padding: 12px; border: 2px solid #e0e0e0; border-radius: 8px; font-size: 15px;">
+                    </div>
+                    <div>
+                        <label style="display: block; margin-bottom: 5px; font-weight: 600; color: #2C3E50;">Purchase Date *</label>
+                        <input type="date" id="editPurchaseDate" required 
+                               style="width: 100%; padding: 12px; border: 2px solid #e0e0e0; border-radius: 8px; font-size: 15px;">
+                    </div>
+                </div>
+                
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 15px;">
+                    <div>
+                        <label style="display: block; margin-bottom: 5px; font-weight: 600; color: #2C3E50;">Buying Price (₹) *</label>
+                        <input type="number" id="editBuyingPrice" step="0.01" min="0" required 
+                               style="width: 100%; padding: 12px; border: 2px solid #e0e0e0; border-radius: 8px; font-size: 15px;">
+                    </div>
+                    <div>
+                        <label style="display: block; margin-bottom: 5px; font-weight: 600; color: #2C3E50;">Selling Price (₹) *</label>
+                        <input type="number" id="editSellingPrice" step="0.01" min="0" required 
+                               style="width: 100%; padding: 12px; border: 2px solid #e0e0e0; border-radius: 8px; font-size: 15px;">
+                    </div>
+                </div>
+                
+                <div style="margin-bottom: 20px;">
+                    <label style="display: block; margin-bottom: 5px; font-weight: 600; color: #2C3E50;">Expiry Date *</label>
+                    <input type="date" id="editExpiryDate" required 
+                           style="width: 100%; padding: 12px; border: 2px solid #e0e0e0; border-radius: 8px; font-size: 15px;">
+                </div>
+                
+                <div style="display: flex; gap: 15px; margin-top: 30px;">
+                    <button type="submit" style="flex: 1; background: #27AE60; color: white; border: none; padding: 14px; border-radius: 8px; font-weight: 600; font-size: 16px; cursor: pointer; transition: all 0.3s;">
+                        💾 Save Changes
+                    </button>
+                    <button type="button" onclick="closeEditModal()" style="flex: 1; background: #7F8C8D; color: white; border: none; padding: 14px; border-radius: 8px; font-weight: 600; font-size: 16px; cursor: pointer; transition: all 0.3s;">
+                        ❌ Cancel
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
 </body>
 </html>
 

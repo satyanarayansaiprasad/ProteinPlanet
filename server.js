@@ -111,6 +111,7 @@ const routes = {
     '/submit-review': 'submit-review.php',
     '/brand-products': 'brand-products.php',
     '/all-products': 'all-products.php',
+    '/stock-history': 'stock-history.php',
     '/reset-password': 'reset-password.php'
 };
 
