@@ -41,10 +41,23 @@ async function loadProducts() {
         isLoading = true;
         showLoadingSpinner();
         
-        const productsSnapshot = await firebaseDb.collection('products')
-            .where('status', '==', 'active')
-            .orderBy('name')
-            .get();
+        console.log('Loading products from Firebase...');
+        
+        // Try with ordering first, fallback to simple query if index doesn't exist
+        let productsSnapshot;
+        try {
+            productsSnapshot = await firebaseDb.collection('products')
+                .where('status', '==', 'active')
+                .orderBy('name')
+                .get();
+        } catch (indexError) {
+            console.log('Index not available, loading without ordering:', indexError);
+            productsSnapshot = await firebaseDb.collection('products')
+                .where('status', '==', 'active')
+                .get();
+        }
+        
+        console.log('Products snapshot size:', productsSnapshot.size);
         
         allProducts = [];
         productsSnapshot.forEach(doc => {
@@ -55,10 +68,14 @@ async function loadProducts() {
             });
         });
         
+        console.log('All products loaded:', allProducts.length);
+        
         // Get brand and category names
         await enrichProductsWithNames();
         
         filteredProducts = [...allProducts];
+        
+        console.log('Rendering products...');
         renderProducts();
         updateStats();
         
@@ -67,10 +84,9 @@ async function loadProducts() {
         
     } catch (error) {
         console.error('Error loading products:', error);
-        showError('Failed to load products. Please try again later.');
+        showError(`Failed to load products: ${error.message}`);
     } finally {
         isLoading = false;
-        hideLoadingSpinner();
     }
 }
 
@@ -184,6 +200,9 @@ function renderProducts() {
 function createProductCard(product) {
     const stockStatus = getStockStatus(product.stockQuantity);
     const stockClass = getStockClass(product.stockQuantity);
+    const price = product.sellingPrice || product.price || 0;
+    const brandName = product.brandName || 'Unknown Brand';
+    const categoryName = product.categoryName || 'Uncategorized';
     
     return `
         <div class="product-card fade-in" data-product-id="${product.id}">
@@ -191,19 +210,16 @@ function createProductCard(product) {
                 <span>💊</span>
             </div>
             <div class="product-info">
-                <div class="product-brand">${product.brandName}</div>
-                <div class="product-name">${product.name}</div>
-                <div class="product-category">${product.categoryName}</div>
-                <div class="product-price">₹${product.sellingPrice || product.price || 'N/A'}</div>
+                <div class="product-brand">${brandName}</div>
+                <div class="product-name">${product.name || 'Unnamed Product'}</div>
+                <div class="product-category">📦 ${categoryName}</div>
+                <div class="product-price">₹${price}</div>
                 <div class="product-stock ${stockClass}">
-                    Stock: ${product.stockQuantity || 0} units
+                    📊 ${stockStatus} (${product.stockQuantity || 0} units)
                 </div>
                 <div class="product-actions">
-                    <a href="brand-products.php?brand=${product.brandId}&name=${encodeURIComponent(product.brandName)}" class="btn-primary">
-                        View Details
-                    </a>
-                    <button class="btn-secondary" onclick="contactForProduct('${product.name}', '${product.brandName}')">
-                        Contact Us
+                    <button class="btn-primary" onclick="contactForProduct('${product.name}', '${brandName}')">
+                        💬 Contact to Buy
                     </button>
                 </div>
             </div>
