@@ -202,7 +202,6 @@
     <script src="js/firebase-config-public.js"></script>
     
     <!-- JavaScript -->
-    <script src="js/landing.js"></script>
     <script src="js/all-products.js"></script>
 </body>
 </html>
