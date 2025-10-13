@@ -110,6 +110,7 @@ const routes = {
     '/staff-products': 'staff-products.php',
     '/submit-review': 'submit-review.php',
     '/brand-products': 'brand-products.php',
+    '/all-products': 'all-products.php',
     '/reset-password': 'reset-password.php'
 };
 
