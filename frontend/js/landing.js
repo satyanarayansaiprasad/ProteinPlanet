@@ -131,9 +131,22 @@ async function loadBrands() {
         });
 
         brandsData = await Promise.all(brandPromises);
+        totalBrands = brandsData.length;
+        
         renderBrands();
         updateBrandsPerView();
-        startBrandsAutoSlide();
+        
+        // Show/hide navigation buttons
+        const showButtons = totalBrands > 1;
+        const prevBtn = document.getElementById('brandsPrevBtn');
+        const nextBtn = document.getElementById('brandsNextBtn');
+        if (prevBtn) prevBtn.style.display = showButtons ? 'flex' : 'none';
+        if (nextBtn) nextBtn.style.display = showButtons ? 'flex' : 'none';
+        
+        // Start auto-slide if more than 1 brand
+        if (totalBrands > 1) {
+            startBrandsAutoSlide();
+        }
 
         // Trigger scroll animations
         observeElements();
@@ -175,21 +188,38 @@ function renderBrands() {
     
     let html = '';
     
+    // Create HTML for original brands
     brandsData.forEach(brand => {
-        html += `
-            <div class="brand-card fade-in" onclick="viewBrandProducts('${brand.id}', '${brand.name}')" title="Click to view ${brand.name} products">
-                <div class="brand-logo">🏷️</div>
-                <div class="brand-name">${brand.name}</div>
-                <p class="brand-description">${brand.description}</p>
-                <div class="product-count">${brand.productCount} Products Available</div>
-                <div style="margin-top: 15px; color: #FF6B35; font-weight: 600; position: relative; z-index: 1;">
-                    View Products →
-                </div>
-            </div>
-        `;
+        html += createBrandCard(brand);
     });
     
+    // Clone first 3 brands for infinite loop effect
+    const cloneCount = Math.min(3, brandsData.length);
+    for (let i = 0; i < cloneCount; i++) {
+        const brand = brandsData[i];
+        html += createBrandCard(brand);
+    }
+    
     brandsContainer.innerHTML = html;
+    
+    // Reset slider position
+    currentBrandIndex = 0;
+    brandsContainer.style.transform = 'translateX(0px)';
+}
+
+// Create brand card HTML
+function createBrandCard(brand) {
+    return `
+        <div class="brand-card fade-in" onclick="viewBrandProducts('${brand.id}', '${brand.name}')" title="Click to view ${brand.name} products">
+            <div class="brand-logo">🏷️</div>
+            <div class="brand-name">${brand.name}</div>
+            <p class="brand-description">${brand.description}</p>
+            <div class="product-count">${brand.productCount} Products Available</div>
+            <div style="margin-top: 15px; color: #FF6B35; font-weight: 600; position: relative; z-index: 1;">
+                View Products →
+            </div>
+        </div>
+    `;
 }
 
 // Get product count for a brand
@@ -474,72 +504,92 @@ let brandsPerView = 3;
 let brandsData = [];
 let brandsInterval;
 
-// Brands slider functionality
-function slideBrands(direction) {
-    if (brandsData.length === 0) return;
-    
-    const totalBrands = brandsData.length;
-    const maxIndex = Math.max(0, totalBrands - brandsPerView);
-    
-    currentBrandIndex += direction;
-    
-    if (currentBrandIndex < 0) {
-        currentBrandIndex = maxIndex;
-    } else if (currentBrandIndex > maxIndex) {
-        currentBrandIndex = 0;
-    }
-    
-    updateBrandsSlider();
-    updateBrandsButtons();
-}
+// Brands slider variables
+let totalBrands = 0;
+let isBrandsTransitioning = false;
+let brandsAutoSlideInterval = null;
 
-function updateBrandsSlider() {
-    const container = document.getElementById("brandsContainer");
-    if (!container) return;
-    
-    const translateX = -currentBrandIndex * (100 / brandsPerView);
-    container.style.transform = `translateX(${translateX}%)`;
-}
-
-function updateBrandsButtons() {
-    const prevBtn = document.getElementById("brandsPrevBtn");
-    const nextBtn = document.getElementById("brandsNextBtn");
-    
-    if (prevBtn) prevBtn.disabled = false;
-    if (nextBtn) nextBtn.disabled = false;
-}
-
-function startBrandsAutoSlide() {
-    if (brandsInterval) {
-        clearInterval(brandsInterval);
-    }
-    
-    brandsInterval = setInterval(() => {
-        slideBrands(1);
-    }, 5000);
-}
-
-function stopBrandsAutoSlide() {
-    if (brandsInterval) {
-        clearInterval(brandsInterval);
-        brandsInterval = null;
-    }
-}
-
-// Update brands slider on window resize
+// Update brands per view based on screen size
 function updateBrandsPerView() {
-    if (window.innerWidth <= 768) {
+    if (window.innerWidth <= 576) {
         brandsPerView = 1;
-    } else if (window.innerWidth <= 1024) {
+    } else if (window.innerWidth <= 968) {
         brandsPerView = 2;
     } else {
         brandsPerView = 3;
     }
-    
-    currentBrandIndex = 0;
-    updateBrandsSlider();
-    updateBrandsButtons();
 }
 
-// Add brands slider resize listener
-window.addEventListener("resize", updateBrandsPerView);
+// Slide brands with infinite loop
+function slideBrands(direction) {
+    if (isBrandsTransitioning) return;
+    
+    const container = document.getElementById('brandsContainer');
+    const cards = container.querySelectorAll('.brand-card');
+    
+    if (cards.length === 0) return;
+    
+    isBrandsTransitioning = true;
+    currentBrandIndex += direction;
+    
+    // Calculate the translate value
+    const cardWidth = cards[0].offsetWidth + 30; // card width + gap
+    const translateX = -(currentBrandIndex * cardWidth);
+    
+    container.style.transition = 'transform 0.5s ease-in-out';
+    container.style.transform = `translateX(${translateX}px)`;
+    
+    // Handle infinite loop
+    setTimeout(() => {
+        // If we've moved past the original cards, reset to the beginning
+        if (currentBrandIndex >= totalBrands) {
+            container.style.transition = 'none';
+            currentBrandIndex = 0;
+            container.style.transform = `translateX(0px)`;
+        }
+        // If we've moved before the first card, jump to the end
+        else if (currentBrandIndex < 0) {
+            container.style.transition = 'none';
+            currentBrandIndex = totalBrands - 1;
+            const resetTranslate = -(currentBrandIndex * cardWidth);
+            container.style.transform = `translateX(${resetTranslate}px)`;
+        }
+        
+        isBrandsTransitioning = false;
+    }, 500);
+}
+
+// Start auto-slide for brands
+function startBrandsAutoSlide() {
+    if (brandsAutoSlideInterval) {
+        clearInterval(brandsAutoSlideInterval);
+    }
+    
+    if (totalBrands > 1) {
+        brandsAutoSlideInterval = setInterval(() => {
+            slideBrands(1);
+        }, 5000);
+    }
+}
+
+// Update brands slider on window resize
+window.addEventListener('resize', () => {
+    const container = document.getElementById('brandsContainer');
+    if (!container) return;
+    
+    const cards = container.querySelectorAll('.brand-card');
+    
+    if (cards.length > 0) {
+        updateBrandsPerView();
+        // Recalculate current position
+        const cardWidth = cards[0].offsetWidth + 30;
+        const translateX = -(currentBrandIndex * cardWidth);
+        container.style.transition = 'none';
+        container.style.transform = `translateX(${translateX}px)`;
+        
+        // Re-enable transition after a brief moment
+        setTimeout(() => {
+            container.style.transition = 'transform 0.5s ease-in-out';
+        }, 50);
+    }
+});
