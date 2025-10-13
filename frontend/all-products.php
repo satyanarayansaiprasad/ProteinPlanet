@@ -25,6 +25,7 @@
     <link rel="icon" type="image/x-icon" href="img/favicon.ico">
     
     <!-- CSS -->
+    <link rel="stylesheet" href="css/landing.css">
     <link rel="stylesheet" href="css/all-products.css">
     
     <!-- Structured Data -->
@@ -48,30 +49,7 @@
     </script>
 </head>
 <body>
-    <!-- Navigation -->
-    <nav id="navbar" class="navbar">
-        <div class="nav-container">
-            <div class="nav-logo">
-                <span class="logo-icon">💪</span>
-                <span class="logo-text">Protein Planet</span>
-            </div>
-            
-            <div class="nav-menu" id="navMenu">
-                <a href="index.php" class="nav-link">Home</a>
-                <a href="index.php#about" class="nav-link">About</a>
-                <a href="index.php#brands" class="nav-link">Brands</a>
-                <a href="index.php#testimonials" class="nav-link">Reviews</a>
-                <a href="submit-review.php" class="nav-link">📝 Review</a>
-                <a href="login.php" class="nav-link login-btn">Login</a>
-            </div>
-            
-            <div class="nav-toggle" id="navToggle">
-                <span class="bar"></span>
-                <span class="bar"></span>
-                <span class="bar"></span>
-            </div>
-        </div>
-    </nav>
+    <?php include 'includes/public-header.php'; ?>
 
     <!-- Header Section -->
     <section class="products-header">
@@ -158,42 +136,7 @@
         </div>
     </section>
 
-    <!-- Footer -->
-    <footer class="footer">
-        <div class="container">
-            <div class="footer-content">
-                <div class="footer-section">
-                    <div class="footer-logo">
-                        <span class="logo-icon">💪</span>
-                        <span class="logo-text">Protein Planet</span>
-                    </div>
-                    <p>Your trusted partner for premium supplements and fitness excellence.</p>
-                </div>
-                
-                <div class="footer-section">
-                    <h3>Quick Links</h3>
-                    <ul>
-                        <li><a href="index.php">Home</a></li>
-                        <li><a href="index.php#about">About</a></li>
-                        <li><a href="index.php#brands">Brands</a></li>
-                        <li><a href="submit-review.php">Leave Review</a></li>
-                    </ul>
-                </div>
-                
-                <div class="footer-section">
-                    <h3>Contact Info</h3>
-                    <div class="contact-details">
-                        <p>📞 +91 7008362528</p>
-                        <p>📍 Shop number 107, RCMS complex, Civil Township, Rourkela, Odisha 769012</p>
-                    </div>
-                </div>
-            </div>
-            
-            <div class="footer-bottom">
-                <p>&copy; 2025 Protein Planet. All rights reserved.</p>
-            </div>
-        </div>
-    </footer>
+    <?php include 'includes/public-footer.php'; ?>
 
     <!-- Firebase Configuration -->
     <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-app-compat.js"></script>
