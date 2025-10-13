@@ -10,23 +10,27 @@ const totalSlides = slides.length;
 
 // Create dots
 const dotsContainer = document.getElementById('sliderDots');
-for (let i = 0; i < totalSlides; i++) {
-    const dot = document.createElement('div');
-    dot.className = 'dot';
-    if (i === 0) dot.classList.add('active');
-    dot.onclick = () => goToSlide(i);
-    dotsContainer.appendChild(dot);
+if (dotsContainer && totalSlides > 0) {
+    for (let i = 0; i < totalSlides; i++) {
+        const dot = document.createElement('div');
+        dot.className = 'dot';
+        if (i === 0) dot.classList.add('active');
+        dot.onclick = () => goToSlide(i);
+        dotsContainer.appendChild(dot);
+    }
 }
 
 function showSlide(n) {
+    if (slides.length === 0) return;
+    
     slides.forEach(slide => slide.classList.remove('active'));
     const dots = document.querySelectorAll('.dot');
     dots.forEach(dot => dot.classList.remove('active'));
 
     currentSlide = (n + totalSlides) % totalSlides;
     
-    slides[currentSlide].classList.add('active');
-    dots[currentSlide].classList.add('active');
+    if (slides[currentSlide]) slides[currentSlide].classList.add('active');
+    if (dots[currentSlide]) dots[currentSlide].classList.add('active');
 }
 
 function changeSlide(direction) {
@@ -37,10 +41,12 @@ function goToSlide(n) {
     showSlide(n);
 }
 
-// Auto-advance slider
-setInterval(() => {
-    changeSlide(1);
-}, 5000);
+// Auto-advance slider (only if slides exist)
+if (totalSlides > 0) {
+    setInterval(() => {
+        changeSlide(1);
+    }, 5000);
+}
 
 // Navbar scroll effect
 window.addEventListener('scroll', () => {
@@ -94,9 +100,13 @@ window.addEventListener('scroll', () => {
 
 // Load brands dynamically from Firebase
 async function loadBrands() {
+    const brandsContainer = document.getElementById('brandsContainer');
+    
+    // Only run if brands container exists (i.e., we're on the landing page)
+    if (!brandsContainer) return;
+    
     try {
         const brandsSnapshot = await firebaseDb.collection('brands').orderBy('name').get();
-        const brandsContainer = document.getElementById('brandsContainer');
 
         if (brandsSnapshot.empty) {
             brandsContainer.innerHTML = `
@@ -136,7 +146,7 @@ async function loadBrands() {
             errorMessage = 'Please update Firestore security rules to allow public access to brands';
         }
         
-        document.getElementById('brandsContainer').innerHTML = `
+        brandsContainer.innerHTML = `
             <div style="text-align: center; padding: 40px; flex: 1; background: white; border-radius: 12px;">
                 <div style="font-size: 48px; margin-bottom: 20px;">⚠️</div>
                 <h3 style="color: #2C3E50; margin-bottom: 15px;">Firestore Rules Update Required</h3>
@@ -161,6 +171,8 @@ async function loadBrands() {
 // Render brands for slider
 function renderBrands() {
     const brandsContainer = document.getElementById('brandsContainer');
+    if (!brandsContainer) return;
+    
     let html = '';
     
     brandsData.forEach(brand => {
@@ -271,13 +283,16 @@ function slideTestimonials(direction) {
 
 // Load reviews dynamically from Firebase
 async function loadReviews() {
+    const testimonialsContainer = document.getElementById('testimonialsContainer');
+    
+    // Only run if testimonials container exists (i.e., we're on the landing page)
+    if (!testimonialsContainer) return;
+    
     try {
         const reviewsSnapshot = await firebaseDb.collection('reviews')
             .where('status', '==', 'pending')
             .orderBy('createdAt', 'desc')
             .get();
-        
-        const testimonialsContainer = document.getElementById('testimonialsContainer');
 
         if (reviewsSnapshot.empty) {
             testimonialsContainer.innerHTML = `
@@ -286,8 +301,10 @@ async function loadReviews() {
                     <p style="color: #7F8C8D;">No reviews yet. Be the first to share your experience!</p>
                 </div>
             `;
-            document.getElementById('testimonialPrevBtn').style.display = 'none';
-            document.getElementById('testimonialNextBtn').style.display = 'none';
+            const prevBtn = document.getElementById('testimonialPrevBtn');
+            const nextBtn = document.getElementById('testimonialNextBtn');
+            if (prevBtn) prevBtn.style.display = 'none';
+            if (nextBtn) nextBtn.style.display = 'none';
             return;
         }
 
@@ -358,8 +375,10 @@ async function loadReviews() {
 
         // Show/hide navigation buttons
         const showButtons = totalTestimonials > 1;
-        document.getElementById('testimonialPrevBtn').style.display = showButtons ? 'block' : 'none';
-        document.getElementById('testimonialNextBtn').style.display = showButtons ? 'block' : 'none';
+        const prevBtn = document.getElementById('testimonialPrevBtn');
+        const nextBtn = document.getElementById('testimonialNextBtn');
+        if (prevBtn) prevBtn.style.display = showButtons ? 'block' : 'none';
+        if (nextBtn) nextBtn.style.display = showButtons ? 'block' : 'none';
 
         // Trigger scroll animations
         observeElements();
@@ -384,20 +403,26 @@ async function loadReviews() {
             errorMessage = 'Please update Firestore security rules to allow public access to reviews';
         }
         
-        document.getElementById('testimonialsContainer').innerHTML = `
-            <div style="text-align: center; padding: 40px; flex: 1; background: white; border-radius: 12px;">
-                <div style="font-size: 48px; margin-bottom: 20px;">⚠️</div>
-                <p style="color: #7F8C8D; margin-bottom: 20px;">${errorMessage}</p>
-            </div>
-        `;
-        document.getElementById('testimonialPrevBtn').style.display = 'none';
-        document.getElementById('testimonialNextBtn').style.display = 'none';
+        if (testimonialsContainer) {
+            testimonialsContainer.innerHTML = `
+                <div style="text-align: center; padding: 40px; flex: 1; background: white; border-radius: 12px;">
+                    <div style="font-size: 48px; margin-bottom: 20px;">⚠️</div>
+                    <p style="color: #7F8C8D; margin-bottom: 20px;">${errorMessage}</p>
+                </div>
+            `;
+        }
+        const prevBtn = document.getElementById('testimonialPrevBtn');
+        const nextBtn = document.getElementById('testimonialNextBtn');
+        if (prevBtn) prevBtn.style.display = 'none';
+        if (nextBtn) nextBtn.style.display = 'none';
     }
 }
 
 // Update slider on window resize
 window.addEventListener('resize', () => {
     const container = document.getElementById('testimonialsContainer');
+    if (!container) return;
+    
     const cards = container.querySelectorAll('.testimonial-card');
     
     if (cards.length > 0) {
