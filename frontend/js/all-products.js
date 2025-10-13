@@ -64,23 +64,19 @@ async function loadProducts() {
         isLoading = true;
         showLoadingSpinner();
         
-        console.log('Loading products from Firebase...');
+        console.log('🔄 Loading products from Firebase...');
+        console.log('firebaseDb:', window.firebaseDb);
         
-        // Try with ordering first, fallback to simple query if index doesn't exist
-        let productsSnapshot;
-        try {
-            productsSnapshot = await firebaseDb.collection('products')
-                .where('status', '==', 'active')
-                .orderBy('name')
-                .get();
-        } catch (indexError) {
-            console.log('Index not available, loading without ordering:', indexError);
-            productsSnapshot = await firebaseDb.collection('products')
-                .where('status', '==', 'active')
-                .get();
+        if (!window.firebaseDb) {
+            throw new Error('Firebase not initialized. Please check firebase-config-public.js');
         }
         
-        console.log('Products snapshot size:', productsSnapshot.size);
+        // Simple query without ordering to avoid index issues
+        const productsSnapshot = await window.firebaseDb.collection('products')
+            .where('status', '==', 'active')
+            .get();
+        
+        console.log('✅ Products snapshot size:', productsSnapshot.size);
         
         allProducts = [];
         productsSnapshot.forEach(doc => {
@@ -91,23 +87,27 @@ async function loadProducts() {
             });
         });
         
-        console.log('All products loaded:', allProducts.length);
+        console.log('✅ All products loaded:', allProducts.length);
+        console.log('Sample product:', allProducts[0]);
         
         // Get brand and category names
         await enrichProductsWithNames();
         
         filteredProducts = [...allProducts];
         
-        console.log('Rendering products...');
+        console.log('✅ Rendering products...');
         renderProducts();
         updateStats();
         
         // Show/hide load more button
         updateLoadMoreButton();
         
+        console.log('✅ All done!');
+        
     } catch (error) {
-        console.error('Error loading products:', error);
-        showError(`Failed to load products: ${error.message}`);
+        console.error('❌ Error loading products:', error);
+        console.error('Error details:', error.code, error.message);
+        showError(`Failed to load products: ${error.message}. Check console for details.`);
     } finally {
         isLoading = false;
     }
@@ -122,7 +122,7 @@ async function enrichProductsWithNames() {
         
         // Fetch brand names
         const brandPromises = brandIds.map(id => 
-            firebaseDb.collection('brands').doc(id).get().then(doc => ({
+            window.firebaseDb.collection('brands').doc(id).get().then(doc => ({
                 id,
                 name: doc.exists ? doc.data().name : 'Unknown Brand'
             }))
@@ -130,7 +130,7 @@ async function enrichProductsWithNames() {
         
         // Fetch category names
         const categoryPromises = categoryIds.map(id => 
-            firebaseDb.collection('categories').doc(id).get().then(doc => ({
+            window.firebaseDb.collection('categories').doc(id).get().then(doc => ({
                 id,
                 name: doc.exists ? doc.data().name : 'Unknown Category'
             }))
@@ -171,7 +171,7 @@ async function enrichProductsWithNames() {
 async function loadFilters() {
     try {
         // Load brands
-        const brandsSnapshot = await firebaseDb.collection('brands').orderBy('name').get();
+        const brandsSnapshot = await window.firebaseDb.collection('brands').get();
         const brandFilter = document.getElementById('brandFilter');
         
         brandsSnapshot.forEach(doc => {
@@ -183,7 +183,7 @@ async function loadFilters() {
         });
         
         // Load categories
-        const categoriesSnapshot = await firebaseDb.collection('categories').orderBy('name').get();
+        const categoriesSnapshot = await window.firebaseDb.collection('categories').get();
         const categoryFilter = document.getElementById('categoryFilter');
         
         categoriesSnapshot.forEach(doc => {
