@@ -366,6 +366,11 @@ body {
     background: white;
     border-radius: 15px;
     box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+    min-height: 300px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
 }
 
 .no-results-icon {
@@ -383,6 +388,7 @@ body {
 .no-results p {
     color: #6c757d;
     margin-bottom: 25px;
+    max-width: 500px;
 }
 
 /* Footer styles come from landing.css */

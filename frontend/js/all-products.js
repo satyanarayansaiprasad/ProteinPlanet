@@ -12,11 +12,20 @@ let isLoading = false;
 
 // Initialize page
 document.addEventListener('DOMContentLoaded', function() {
+    console.log('🚀 Page loaded, starting initialization...');
+    
+    // Check Firebase
+    console.log('Firebase app:', firebase?.apps?.length > 0 ? 'Initialized' : 'NOT Initialized');
+    console.log('window.firebaseDb:', window.firebaseDb ? 'Available' : 'NOT Available');
+    
     loadProducts();
     loadFilters();
     
     // Add event listeners
-    document.getElementById('searchInput').addEventListener('input', debounce(searchProducts, 300));
+    const searchInput = document.getElementById('searchInput');
+    if (searchInput) {
+        searchInput.addEventListener('input', debounce(searchProducts, 300));
+    }
     
     // Add scroll listener for infinite loading
     window.addEventListener('scroll', handleScroll);
@@ -202,12 +211,30 @@ async function loadFilters() {
 // Render products
 function renderProducts() {
     const container = document.getElementById('productsGrid');
+    
+    if (!container) {
+        console.error('❌ Products container not found!');
+        return;
+    }
+    
     const startIndex = 0;
     const endIndex = currentPage * productsPerPage;
     const productsToShow = filteredProducts.slice(startIndex, endIndex);
     
+    console.log('📦 Rendering', productsToShow.length, 'products out of', filteredProducts.length, 'filtered products');
+    
     if (productsToShow.length === 0) {
-        showNoResults();
+        if (allProducts.length === 0) {
+            container.innerHTML = `
+                <div class="no-results">
+                    <div class="no-results-icon">📦</div>
+                    <h3>No Products Available</h3>
+                    <p>There are currently no active products in the store. Please check back later.</p>
+                </div>
+            `;
+        } else {
+            showNoResults();
+        }
         return;
     }
     
@@ -217,6 +244,7 @@ function renderProducts() {
     });
     
     container.innerHTML = html;
+    console.log('✅ Products rendered successfully');
 }
 
 // Create product card HTML
