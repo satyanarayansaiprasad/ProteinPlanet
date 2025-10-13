@@ -1,0 +1,39 @@
+User-agent: *
+Allow: /
+
+# Sitemap
+Sitemap: https://proteinplanet.onrender.com/sitemap.xml
+
+# Crawl-delay
+Crawl-delay: 1
+
+# Allow all pages for SEO
+Allow: /login
+Allow: /admin_dashboard
+Allow: /pos-sale
+Allow: /sales-history
+Allow: /staff_dashboard
+Allow: /view-products
+Allow: /add-product
+Allow: /manage-brands
+Allow: /manage-categories
+Allow: /staff-pos
+Allow: /staff-sales-history
+Allow: /staff-products
+Allow: /customer-purchases
+Allow: /submit-review
+Allow: /brand-products
+Allow: /reset-password
+
+# Allow static resources
+Allow: /css/
+Allow: /js/
+Allow: /img/
+Allow: /includes/
+
+# Disallow admin-only sensitive areas (if any)
+Disallow: /setup-users.html
+Disallow: /test-create-user.html
+
+# Host
+Host: https://proteinplanet.onrender.com

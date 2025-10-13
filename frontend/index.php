@@ -3,9 +3,127 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Protein Planet - Your Fitness Partner</title>
+    
+    <!-- Primary SEO Meta Tags -->
+    <title>Protein Planet Rourkela - Best Supplement Store in Odisha | Premium Fitness Supplements</title>
+    <meta name="title" content="Protein Planet Rourkela - Best Supplement Store in Odisha | Premium Fitness Supplements">
+    <meta name="description" content="Protein Planet is the best supplement store in Rourkela, Odisha. Premium quality whey protein, mass gainers, pre-workout & fitness supplements. Expert guidance & best prices guaranteed. Shop number 107, RCMS complex, Civil Township, Rourkela.">
+    <meta name="keywords" content="protein planet rourkela, supplement store rourkela, best protein store odisha, whey protein rourkela, fitness supplements rourkela, mass gainer rourkela, pre workout rourkela, protein powder rourkela, supplements near me, fitness store rourkela, protein planet odisha, best supplement store near me">
+    <meta name="robots" content="index, follow">
+    <meta name="language" content="English">
+    <meta name="author" content="Protein Planet Rourkela">
+    <meta name="geo.region" content="IN-OR">
+    <meta name="geo.placename" content="Rourkela">
+    <meta name="geo.position" content="22.2492;84.8826">
+    <meta name="ICBM" content="22.2492, 84.8826">
+    
+    <!-- Open Graph / Facebook -->
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://proteinplanet.onrender.com/">
+    <meta property="og:title" content="Protein Planet Rourkela - Best Supplement Store in Odisha">
+    <meta property="og:description" content="Premium quality fitness supplements in Rourkela. Whey protein, mass gainers, pre-workout & more. Expert guidance & best prices guaranteed.">
+    <meta property="og:image" content="https://proteinplanet.onrender.com/img/slider/1.jpeg">
+    <meta property="og:site_name" content="Protein Planet">
+    <meta property="og:locale" content="en_IN">
+    
+    <!-- Twitter -->
+    <meta property="twitter:card" content="summary_large_image">
+    <meta property="twitter:url" content="https://proteinplanet.onrender.com/">
+    <meta property="twitter:title" content="Protein Planet Rourkela - Best Supplement Store in Odisha">
+    <meta property="twitter:description" content="Premium quality fitness supplements in Rourkela. Whey protein, mass gainers, pre-workout & more. Expert guidance & best prices guaranteed.">
+    <meta property="twitter:image" content="https://proteinplanet.onrender.com/img/slider/1.jpeg">
+    
+    <!-- Local Business Schema -->
+    <script type="application/ld+json">
+    {
+        "@context": "https://schema.org",
+        "@type": "LocalBusiness",
+        "name": "Protein Planet",
+        "description": "Premium quality fitness supplements store in Rourkela, Odisha. Specializing in whey protein, mass gainers, pre-workout supplements and expert fitness guidance.",
+        "url": "https://proteinplanet.onrender.com",
+        "telephone": "+917008362528",
+        "address": {
+            "@type": "PostalAddress",
+            "streetAddress": "Shop number 107, RCMS complex",
+            "addressLocality": "Civil Township",
+            "addressRegion": "Odisha",
+            "postalCode": "769012",
+            "addressCountry": "IN"
+        },
+        "geo": {
+            "@type": "GeoCoordinates",
+            "latitude": "22.2492",
+            "longitude": "84.8826"
+        },
+        "openingHoursSpecification": {
+            "@type": "OpeningHoursSpecification",
+            "dayOfWeek": ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"],
+            "opens": "09:00",
+            "closes": "21:00"
+        },
+        "priceRange": "₹₹",
+        "paymentAccepted": "Cash, UPI, Card",
+        "currenciesAccepted": "INR",
+        "image": "https://proteinplanet.onrender.com/img/slider/1.jpeg",
+        "logo": "https://proteinplanet.onrender.com/img/slider/1.jpeg",
+        "sameAs": [
+            "https://www.facebook.com/proteinplanetrourkela",
+            "https://www.instagram.com/proteinplanetrourkela"
+        ],
+        "hasOfferCatalog": {
+            "@type": "OfferCatalog",
+            "name": "Fitness Supplements",
+            "itemListElement": [
+                {
+                    "@type": "Offer",
+                    "itemOffered": {
+                        "@type": "Product",
+                        "name": "Whey Protein",
+                        "description": "Premium quality whey protein supplements"
+                    }
+                },
+                {
+                    "@type": "Offer",
+                    "itemOffered": {
+                        "@type": "Product",
+                        "name": "Mass Gainer",
+                        "description": "High calorie mass gainer supplements"
+                    }
+                },
+                {
+                    "@type": "Offer",
+                    "itemOffered": {
+                        "@type": "Product",
+                        "name": "Pre-Workout",
+                        "description": "Energy boosting pre-workout supplements"
+                    }
+                }
+            ]
+        }
+    }
+    </script>
+    
+    <!-- Canonical URL -->
+    <link rel="canonical" href="https://proteinplanet.onrender.com/">
+    
+    <!-- Favicon -->
+    <link rel="icon" type="image/x-icon" href="/img/slider/1.jpeg">
+    <link rel="apple-touch-icon" href="/img/slider/1.jpeg">
+    
+    <!-- Fonts -->
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    
+    <!-- Stylesheets -->
     <link rel="stylesheet" href="css/landing.css">
+    
+    <!-- Google Analytics (Replace with your GA4 ID) -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=GA_MEASUREMENT_ID"></script>
+    <script>
+        window.dataLayer = window.dataLayer || [];
+        function gtag(){dataLayer.push(arguments);}
+        gtag('js', new Date());
+        gtag('config', 'GA_MEASUREMENT_ID');
+    </script>
 </head>
 <body>
     <!-- Navigation Bar -->

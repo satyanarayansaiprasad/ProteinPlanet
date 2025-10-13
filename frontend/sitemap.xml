@@ -1,0 +1,146 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
+        xmlns:image="http://www.google.com/schemas/sitemap-image/1.1">
+    
+    <!-- Homepage -->
+    <url>
+        <loc>https://proteinplanet.onrender.com/</loc>
+        <lastmod>2025-01-13</lastmod>
+        <changefreq>daily</changefreq>
+        <priority>1.0</priority>
+        <image:image>
+            <image:loc>https://proteinplanet.onrender.com/img/slider/1.jpeg</image:loc>
+            <image:title>Protein Planet Rourkela - Best Supplement Store</image:title>
+            <image:caption>Premium quality fitness supplements in Rourkela, Odisha</image:caption>
+        </image:image>
+        <image:image>
+            <image:loc>https://proteinplanet.onrender.com/img/slider/2.jpeg</image:loc>
+            <image:title>Trusted by Athletes - Protein Planet</image:title>
+            <image:caption>100% Authentic Products, Best Prices Guaranteed</image:caption>
+        </image:image>
+    </url>
+    
+    <!-- Login Page -->
+    <url>
+        <loc>https://proteinplanet.onrender.com/login</loc>
+        <lastmod>2025-01-13</lastmod>
+        <changefreq>monthly</changefreq>
+        <priority>0.8</priority>
+    </url>
+    
+    <!-- Admin Dashboard -->
+    <url>
+        <loc>https://proteinplanet.onrender.com/admin_dashboard</loc>
+        <lastmod>2025-01-13</lastmod>
+        <changefreq>weekly</changefreq>
+        <priority>0.9</priority>
+    </url>
+    
+    <!-- POS System -->
+    <url>
+        <loc>https://proteinplanet.onrender.com/pos-sale</loc>
+        <lastmod>2025-01-13</lastmod>
+        <changefreq>weekly</changefreq>
+        <priority>0.9</priority>
+    </url>
+    
+    <!-- Sales History -->
+    <url>
+        <loc>https://proteinplanet.onrender.com/sales-history</loc>
+        <lastmod>2025-01-13</lastmod>
+        <changefreq>weekly</changefreq>
+        <priority>0.8</priority>
+    </url>
+    
+    <!-- Staff Dashboard -->
+    <url>
+        <loc>https://proteinplanet.onrender.com/staff_dashboard</loc>
+        <lastmod>2025-01-13</lastmod>
+        <changefreq>weekly</changefreq>
+        <priority>0.8</priority>
+    </url>
+    
+    <!-- Product Management -->
+    <url>
+        <loc>https://proteinplanet.onrender.com/view-products</loc>
+        <lastmod>2025-01-13</lastmod>
+        <changefreq>daily</changefreq>
+        <priority>0.9</priority>
+    </url>
+    
+    <url>
+        <loc>https://proteinplanet.onrender.com/add-product</loc>
+        <lastmod>2025-01-13</lastmod>
+        <changefreq>weekly</changefreq>
+        <priority>0.7</priority>
+    </url>
+    
+    <!-- Brand Management -->
+    <url>
+        <loc>https://proteinplanet.onrender.com/manage-brands</loc>
+        <lastmod>2025-01-13</lastmod>
+        <changefreq>weekly</changefreq>
+        <priority>0.7</priority>
+    </url>
+    
+    <!-- Category Management -->
+    <url>
+        <loc>https://proteinplanet.onrender.com/manage-categories</loc>
+        <lastmod>2025-01-13</lastmod>
+        <changefreq>weekly</changefreq>
+        <priority>0.7</priority>
+    </url>
+    
+    <!-- Staff Pages -->
+    <url>
+        <loc>https://proteinplanet.onrender.com/staff-pos</loc>
+        <lastmod>2025-01-13</lastmod>
+        <changefreq>weekly</changefreq>
+        <priority>0.8</priority>
+    </url>
+    
+    <url>
+        <loc>https://proteinplanet.onrender.com/staff-sales-history</loc>
+        <lastmod>2025-01-13</lastmod>
+        <changefreq>weekly</changefreq>
+        <priority>0.7</priority>
+    </url>
+    
+    <url>
+        <loc>https://proteinplanet.onrender.com/staff-products</loc>
+        <lastmod>2025-01-13</lastmod>
+        <changefreq>weekly</changefreq>
+        <priority>0.7</priority>
+    </url>
+    
+    <!-- Customer Features -->
+    <url>
+        <loc>https://proteinplanet.onrender.com/customer-purchases</loc>
+        <lastmod>2025-01-13</lastmod>
+        <changefreq>weekly</changefreq>
+        <priority>0.6</priority>
+    </url>
+    
+    <url>
+        <loc>https://proteinplanet.onrender.com/submit-review</loc>
+        <lastmod>2025-01-13</lastmod>
+        <changefreq>monthly</changefreq>
+        <priority>0.6</priority>
+    </url>
+    
+    <url>
+        <loc>https://proteinplanet.onrender.com/brand-products</loc>
+        <lastmod>2025-01-13</lastmod>
+        <changefreq>daily</changefreq>
+        <priority>0.8</priority>
+    </url>
+    
+    <!-- Reset Password -->
+    <url>
+        <loc>https://proteinplanet.onrender.com/reset-password</loc>
+        <lastmod>2025-01-13</lastmod>
+        <changefreq>monthly</changefreq>
+        <priority>0.5</priority>
+    </url>
+    
+</urlset>

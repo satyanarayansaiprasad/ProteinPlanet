@@ -71,6 +71,27 @@ app.get('/health', (req, res) => {
     });
 });
 
+// SEO endpoints
+app.get('/sitemap.xml', (req, res) => {
+    const sitemapPath = path.join(__dirname, 'frontend', 'sitemap.xml');
+    if (fs.existsSync(sitemapPath)) {
+        res.setHeader('Content-Type', 'application/xml');
+        res.sendFile(sitemapPath);
+    } else {
+        res.status(404).send('Sitemap not found');
+    }
+});
+
+app.get('/robots.txt', (req, res) => {
+    const robotsPath = path.join(__dirname, 'frontend', 'robots.txt');
+    if (fs.existsSync(robotsPath)) {
+        res.setHeader('Content-Type', 'text/plain');
+        res.sendFile(robotsPath);
+    } else {
+        res.status(404).send('Robots.txt not found');
+    }
+});
+
 // Define all your routes explicitly
 const routes = {
     '/': 'index.php',
