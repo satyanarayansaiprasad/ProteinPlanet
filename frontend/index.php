@@ -35,7 +35,7 @@
     <!-- Hero Section with Slider -->
     <section id="home" class="hero-section">
         <div class="slider-container">
-            <div class="slide active">
+            <div class="slide active" style="background-image: url('img/slider/1.jpeg');">
                 <div class="slide-content">
                     <div class="slide-text">
                         <h1 class="slide-title">Fuel Your Fitness Journey</h1>
@@ -44,21 +44,12 @@
                     </div>
                 </div>
             </div>
-            <div class="slide">
+            <div class="slide" style="background-image: url('img/slider/2.jpeg');">
                 <div class="slide-content">
                     <div class="slide-text">
                         <h1 class="slide-title">Trusted by Athletes</h1>
                         <p class="slide-subtitle">100% Authentic Products, Best Prices Guaranteed</p>
                         <button class="cta-button" onclick="window.location.href='#brands'">Shop Now</button>
-                    </div>
-                </div>
-            </div>
-            <div class="slide">
-                <div class="slide-content">
-                    <div class="slide-text">
-                        <h1 class="slide-title">Achieve Your Goals</h1>
-                        <p class="slide-subtitle">Expert Guidance & Premium Supplements</p>
-                        <button class="cta-button" onclick="window.location.href='#about'">Learn More</button>
                     </div>
                 </div>
             </div>
