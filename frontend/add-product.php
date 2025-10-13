@@ -188,11 +188,11 @@
                 <!-- Product Image Upload -->
                 <div class="form-group">
                     <label for="productImage">Product Image (Optional)</label>
-                    <input type="file" id="productImage" accept="image/*" style="padding: 8px;">
+                    <input type="file" id="productImage" accept="image/jpeg,image/jpg,image/png,image/webp,image/gif" style="padding: 8px;">
                     <div id="imagePreview" style="margin-top: 10px; display: none;">
                         <img id="previewImg" style="max-width: 200px; max-height: 200px; border-radius: 8px; border: 2px solid #e0e0e0;">
                     </div>
-                    <small style="color: #7F8C8D; display: block; margin-top: 5px;">Recommended: 500x500px, Max 2MB</small>
+                    <small style="color: #7F8C8D; display: block; margin-top: 5px;">Accepts: JPG, PNG, WebP, GIF | Max 2MB</small>
                 </div>
 
                 <div class="form-group">

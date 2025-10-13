@@ -220,13 +220,18 @@
                 const stockColor = availableQty <= 0 ? '#E74C3C' : availableQty <= 10 ? '#F39C12' : '#27AE60';
                 const stockBg = availableQty <= 0 ? '#FADBD8' : availableQty <= 10 ? '#FCF3CF' : '#D5F4E6';
                 
+                const hasImage = p.imageUrl && p.imageUrl.trim() !== '';
+                
                 html += `
                     <div style="background: white; border-radius: 15px; overflow: hidden; box-shadow: 0 5px 20px rgba(0,0,0,0.08); transition: all 0.3s ease; border: 1px solid #f0f0f0;"
                          onmouseover="this.style.transform='translateY(-8px)'; this.style.boxShadow='0 15px 40px rgba(0,0,0,0.15)'"
                          onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 5px 20px rgba(0,0,0,0.08)'">
                         
-                        <div style="background: linear-gradient(135deg, #FF6B35 0%, #F7931E 100%); height: 180px; display: flex; align-items: center; justify-content: center; position: relative;">
-                            <div style="font-size: 72px; filter: brightness(0) invert(1); opacity: 0.9;">💊</div>
+                        <div style="background: ${hasImage ? 'white' : 'linear-gradient(135deg, #FF6B35 0%, #F7931E 100%)'}; height: 180px; display: flex; align-items: center; justify-content: center; position: relative;">
+                            ${hasImage 
+                                ? `<img src="${p.imageUrl}" alt="${p.name}" style="width: 100%; height: 100%; object-fit: cover;">` 
+                                : `<div style="font-size: 72px; filter: brightness(0) invert(1); opacity: 0.9;">💊</div>`
+                            }
                             <div style="position: absolute; top: 15px; right: 15px; background: ${stockBg}; color: ${stockColor}; padding: 6px 12px; border-radius: 20px; font-size: 12px; font-weight: 600; backdrop-filter: blur(10px);">
                                 ${stockStatus}
                             </div>

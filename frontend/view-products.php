@@ -238,7 +238,14 @@
                 
                 html += `
                     <tr>
-                        <td><strong>${product.name}</strong></td>
+                        <td>
+                            <div style="display: flex; align-items: center; gap: 10px;">
+                                ${product.imageUrl ? `
+                                    <img src="${product.imageUrl}" alt="${product.name}" style="width: 40px; height: 40px; object-fit: cover; border-radius: 6px; border: 1px solid #e0e0e0;">
+                                ` : ''}
+                                <strong>${product.name}</strong>
+                            </div>
+                        </td>
                         <td>${product.brandName}</td>
                         <td>${product.categoryName}</td>
                         <td><strong>${product.availableQuantity}</strong></td>

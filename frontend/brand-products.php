@@ -272,6 +272,11 @@
                     
                     html += `
                         <div class="product-card">
+                            ${product.imageUrl ? `
+                                <div style="width: 100%; height: 180px; margin: -25px -25px 20px -25px; overflow: hidden;">
+                                    <img src="${product.imageUrl}" alt="${product.name}" style="width: 100%; height: 100%; object-fit: cover;">
+                                </div>
+                            ` : ''}
                             <div class="product-name">${product.name}</div>
                             <div class="product-category">${product.categoryName}</div>
                             <div class="product-price">₹${product.sellingPrice.toFixed(2)}</div>
