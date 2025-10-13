@@ -1,12 +1,12 @@
 services:
   - type: web
     name: protein-planet
-    env: php
+    env: node
     plan: free
-    buildCommand: echo "No build needed for PHP"
-    startCommand: php -S 0.0.0.0:$PORT -t frontend
-    healthCheckPath: /index.php
+    buildCommand: npm install
+    startCommand: npm start
+    healthCheckPath: /health
     envVars:
-      - key: PHP_VERSION
-        value: "8.1"
+      - key: NODE_ENV
+        value: production
 

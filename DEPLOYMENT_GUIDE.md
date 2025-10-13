@@ -23,9 +23,9 @@ Your code is at: https://github.com/satyanarayansaiprasad/ProteinPlanet
 3. **Configure Service:**
    ```
    Name: protein-planet
-   Environment: PHP
-   Build Command: (leave blank)
-   Start Command: php -S 0.0.0.0:$PORT -t frontend
+   Environment: Node
+   Build Command: npm install
+   Start Command: npm start
    Plan: Free
    ```
 
