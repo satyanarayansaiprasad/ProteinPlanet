@@ -279,6 +279,24 @@
     <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
     <script src="js/firebase-config-public.js"></script>
+    <script>
+        // Debug brands loading
+        setTimeout(() => {
+            console.log('=== BRANDS DEBUG ===');
+            console.log('firebaseDb available:', window.firebaseDb ? 'YES' : 'NO');
+            console.log('brandsContainer exists:', document.getElementById('brandsContainer') ? 'YES' : 'NO');
+            
+            // Direct test
+            if (window.firebaseDb) {
+                window.firebaseDb.collection('brands').get().then(snapshot => {
+                    console.log('BRANDS IN DATABASE:', snapshot.size);
+                    snapshot.forEach(doc => {
+                        console.log('- Brand:', doc.id, doc.data().name);
+                    });
+                });
+            }
+        }, 2000);
+    </script>
     <script src="js/landing.js"></script>
 </body>
 </html>
