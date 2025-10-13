@@ -106,7 +106,9 @@ async function loadBrands() {
     if (!brandsContainer) return;
     
     try {
+        console.log('🏷️ Loading brands...');
         const brandsSnapshot = await firebaseDb.collection('brands').orderBy('name').get();
+        console.log('Brands found:', brandsSnapshot.size);
 
         if (brandsSnapshot.empty) {
             brandsContainer.innerHTML = `
@@ -122,6 +124,7 @@ async function loadBrands() {
         const brandPromises = [];
 
         brandsSnapshot.forEach(doc => {
+            console.log('Brand:', doc.id, doc.data().name);
             brandPromises.push(getBrandProductCount(doc.id).then(count => ({
                 id: doc.id,
                 name: doc.data().name,
@@ -132,6 +135,8 @@ async function loadBrands() {
 
         brandsData = await Promise.all(brandPromises);
         totalBrands = brandsData.length;
+        console.log('✅ Total brands loaded:', totalBrands);
+        console.log('Brands data:', brandsData);
         
         renderBrands();
         updateBrandsPerView();
@@ -186,25 +191,32 @@ function renderBrands() {
     const brandsContainer = document.getElementById('brandsContainer');
     if (!brandsContainer) return;
     
+    console.log('🎨 Rendering', brandsData.length, 'brands...');
     let html = '';
     
     // Create HTML for original brands
-    brandsData.forEach(brand => {
+    brandsData.forEach((brand, index) => {
+        console.log(`Creating card ${index + 1}:`, brand.name);
         html += createBrandCard(brand);
     });
     
-    // Clone first 3 brands for infinite loop effect
-    const cloneCount = Math.min(3, brandsData.length);
-    for (let i = 0; i < cloneCount; i++) {
-        const brand = brandsData[i];
-        html += createBrandCard(brand);
+    // Clone first 3 brands for infinite loop effect (only if more than 1 brand)
+    if (brandsData.length > 1) {
+        const cloneCount = Math.min(3, brandsData.length);
+        console.log(`Cloning first ${cloneCount} brands for infinite loop`);
+        for (let i = 0; i < cloneCount; i++) {
+            const brand = brandsData[i];
+            html += createBrandCard(brand);
+        }
     }
     
     brandsContainer.innerHTML = html;
+    console.log('✅ Brands HTML rendered, total cards:', brandsContainer.children.length);
     
     // Reset slider position
     currentBrandIndex = 0;
     brandsContainer.style.transform = 'translateX(0px)';
+    brandsContainer.style.transition = 'transform 0.5s ease-in-out';
 }
 
 // Create brand card HTML
