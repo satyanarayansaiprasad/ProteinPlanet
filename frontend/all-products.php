@@ -147,6 +147,65 @@
     <script src="js/firebase-config-public.js"></script>
     
     <!-- JavaScript -->
+    <script>
+        // Immediate test - bypass everything
+        console.log('=== DIRECT TEST ===');
+        console.log('Page loaded at:', new Date());
+        console.log('Firebase:', typeof firebase !== 'undefined' ? 'Loaded' : 'NOT LOADED');
+        console.log('firebaseDb:', typeof window.firebaseDb !== 'undefined' ? 'Available' : 'NOT AVAILABLE');
+        
+        // Direct Firebase test
+        setTimeout(async () => {
+            console.log('=== STARTING DIRECT FIREBASE TEST ===');
+            try {
+                if (window.firebaseDb) {
+                    const snapshot = await window.firebaseDb.collection('products').get();
+                    console.log('✅ TOTAL PRODUCTS IN DATABASE:', snapshot.size);
+                    
+                    if (snapshot.size > 0) {
+                        console.log('📦 PRODUCTS:');
+                        snapshot.forEach(doc => {
+                            const data = doc.data();
+                            console.log(`- ${doc.id}:`, data.name, `(status: ${data.status})`);
+                        });
+                        
+                        // Now try with status filter
+                        const activeSnapshot = await window.firebaseDb.collection('products').where('status', '==', 'active').get();
+                        console.log('✅ ACTIVE PRODUCTS:', activeSnapshot.size);
+                        
+                        // Render test
+                        const container = document.getElementById('productsGrid');
+                        if (activeSnapshot.size > 0) {
+                            let html = '';
+                            activeSnapshot.forEach(doc => {
+                                const p = doc.data();
+                                html += `
+                                    <div style="background: white; padding: 20px; border-radius: 10px; box-shadow: 0 2px 10px rgba(0,0,0,0.1);">
+                                        <h3 style="color: #FF6B35; margin: 0 0 10px 0;">${p.name || 'No name'}</h3>
+                                        <p style="margin: 5px 0;">Brand: ${p.brandName || p.brandId || 'Unknown'}</p>
+                                        <p style="margin: 5px 0;">Price: ₹${p.sellingPrice || p.price || 'N/A'}</p>
+                                        <p style="margin: 5px 0;">Stock: ${p.stockQuantity || 0}</p>
+                                    </div>
+                                `;
+                            });
+                            container.innerHTML = html;
+                            console.log('✅ RENDERED PRODUCTS TO DOM');
+                        } else {
+                            container.innerHTML = '<div style="text-align: center; padding: 40px;"><h2>No active products found</h2></div>';
+                        }
+                    } else {
+                        document.getElementById('productsGrid').innerHTML = '<div style="text-align: center; padding: 40px;"><h2>⚠️ Database is empty!</h2><p>No products found in Firestore</p></div>';
+                    }
+                } else {
+                    console.error('❌ firebaseDb NOT AVAILABLE');
+                    document.getElementById('productsGrid').innerHTML = '<div style="text-align: center; padding: 40px;"><h2>❌ Firebase Error</h2><p>firebaseDb is not initialized</p></div>';
+                }
+            } catch (error) {
+                console.error('❌ ERROR:', error);
+                document.getElementById('productsGrid').innerHTML = `<div style="text-align: center; padding: 40px;"><h2>❌ Error</h2><p>${error.message}</p></div>`;
+            }
+        }, 1000);
+    </script>
     <script src="js/all-products.js"></script>
 </body>
 </html>
