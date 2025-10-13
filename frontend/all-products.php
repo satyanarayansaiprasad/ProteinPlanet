@@ -178,21 +178,54 @@
                                 const availableQty = p.availableQuantity || p.stockQuantity || 0;
                                 const stockStatus = availableQty <= 0 ? 'Out of Stock' : availableQty <= 10 ? 'Low Stock' : 'In Stock';
                                 const stockColor = availableQty <= 0 ? '#E74C3C' : availableQty <= 10 ? '#F39C12' : '#27AE60';
+                                const stockBg = availableQty <= 0 ? '#FADBD8' : availableQty <= 10 ? '#FCF3CF' : '#D5F4E6';
                                 
                                 html += `
-                                    <div style="background: white; padding: 20px; border-radius: 10px; box-shadow: 0 2px 10px rgba(0,0,0,0.1);">
-                                        <h3 style="color: #FF6B35; margin: 0 0 10px 0;">${p.name || 'No name'}</h3>
-                                        <p style="margin: 5px 0; color: #666;">📦 ${p.brandName || p.brandId || 'Unknown'}</p>
-                                        <p style="margin: 5px 0; font-size: 18px; font-weight: 600; color: #27AE60;">₹${p.sellingPrice || p.price || 'N/A'}</p>
-                                        <p style="margin: 5px 0; color: ${stockColor}; font-weight: 500;">
-                                            📊 ${stockStatus} (${availableQty} units available)
-                                        </p>
-                                        <button onclick="contactForProduct('${(p.name || '').replace(/'/g, "\\'")}', '${(p.brandName || 'Unknown').replace(/'/g, "\\'")}', '${p.sellingPrice || p.price || 'N/A'}')" 
-                                                onmouseover="this.style.background='#E55A2B'; this.style.transform='translateY(-2px)'" 
-                                                onmouseout="this.style.background='#FF6B35'; this.style.transform='translateY(0)'"
-                                                style="margin-top: 15px; width: 100%; background: #FF6B35; color: white; border: none; padding: 12px; border-radius: 8px; font-weight: 600; cursor: pointer; font-size: 15px; transition: all 0.3s ease;">
-                                            💬 Contact to Purchase
-                                        </button>
+                                    <div style="background: white; border-radius: 15px; overflow: hidden; box-shadow: 0 5px 20px rgba(0,0,0,0.08); transition: all 0.3s ease; border: 1px solid #f0f0f0;"
+                                         onmouseover="this.style.transform='translateY(-8px)'; this.style.boxShadow='0 15px 40px rgba(0,0,0,0.15)'"
+                                         onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 5px 20px rgba(0,0,0,0.08)'">
+                                        
+                                        <!-- Product Image/Icon -->
+                                        <div style="background: linear-gradient(135deg, #FF6B35 0%, #F7931E 100%); height: 180px; display: flex; align-items: center; justify-content: center; position: relative;">
+                                            <div style="font-size: 72px; filter: brightness(0) invert(1); opacity: 0.9;">💊</div>
+                                            <div style="position: absolute; top: 15px; right: 15px; background: ${stockBg}; color: ${stockColor}; padding: 6px 12px; border-radius: 20px; font-size: 12px; font-weight: 600; backdrop-filter: blur(10px);">
+                                                ${stockStatus}
+                                            </div>
+                                        </div>
+                                        
+                                        <!-- Product Details -->
+                                        <div style="padding: 25px;">
+                                            <!-- Brand Badge -->
+                                            <div style="background: #FFF4ED; color: #FF6B35; padding: 6px 12px; border-radius: 6px; display: inline-block; font-size: 12px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 12px;">
+                                                ${p.brandName || p.brandId || 'Unknown Brand'}
+                                            </div>
+                                            
+                                            <!-- Product Name -->
+                                            <h3 style="color: #2C3E50; margin: 0 0 15px 0; font-size: 1.2rem; font-weight: 700; line-height: 1.4; min-height: 50px;">
+                                                ${p.name || 'Product Name'}
+                                            </h3>
+                                            
+                                            <!-- Price & Stock Info -->
+                                            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; padding: 15px; background: #F8F9FA; border-radius: 10px;">
+                                                <div>
+                                                    <div style="font-size: 12px; color: #7F8C8D; margin-bottom: 4px;">Price</div>
+                                                    <div style="font-size: 24px; font-weight: 700; color: #27AE60;">₹${p.sellingPrice || p.price || 'N/A'}</div>
+                                                </div>
+                                                <div style="text-align: right;">
+                                                    <div style="font-size: 12px; color: #7F8C8D; margin-bottom: 4px;">Available</div>
+                                                    <div style="font-size: 18px; font-weight: 600; color: ${stockColor};">${availableQty} units</div>
+                                                </div>
+                                            </div>
+                                            
+                                            <!-- Contact Button -->
+                                            <button onclick="contactForProduct('${(p.name || '').replace(/'/g, "\\'")}', '${(p.brandName || 'Unknown').replace(/'/g, "\\'")}', '${p.sellingPrice || p.price || 'N/A'}')" 
+                                                    onmouseover="this.style.background='#E55A2B'; this.style.boxShadow='0 8px 20px rgba(255,107,53,0.4)'" 
+                                                    onmouseout="this.style.background='#FF6B35'; this.style.boxShadow='0 4px 15px rgba(255,107,53,0.3)'"
+                                                    style="width: 100%; background: #FF6B35; color: white; border: none; padding: 14px; border-radius: 10px; font-weight: 600; cursor: pointer; font-size: 15px; transition: all 0.3s ease; box-shadow: 0 4px 15px rgba(255,107,53,0.3); display: flex; align-items: center; justify-content: center; gap: 8px;">
+                                                <span style="font-size: 18px;">💬</span>
+                                                <span>Contact to Purchase</span>
+                                            </button>
+                                        </div>
                                     </div>
                                 `;
                             });
