@@ -6,6 +6,50 @@
     <title>Reset Password - Protein Planet</title>
     <link rel="stylesheet" href="css/login.css">
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        .message {
+            padding: 12px 16px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            font-size: 14px;
+            font-weight: 500;
+            opacity: 0;
+            transform: translateY(-10px);
+            transition: all 0.3s ease;
+        }
+        .message.show {
+            opacity: 1;
+            transform: translateY(0);
+        }
+        .message.success {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+        .message.error {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+        .submit-btn.loading {
+            opacity: 0.7;
+            cursor: not-allowed;
+        }
+        .submit-btn.loading span::after {
+            content: '';
+            display: inline-block;
+            width: 16px;
+            height: 16px;
+            margin-left: 8px;
+            border: 2px solid #ffffff;
+            border-radius: 50%;
+            border-top-color: transparent;
+            animation: spin 1s linear infinite;
+        }
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+    </style>
 </head>
 <body>
     <div class="container">
@@ -65,7 +109,7 @@
             submitBtn.disabled = true;
             
             try {
-                await firebaseAuth.sendPasswordResetEmail(email);
+                await window.firebaseAuth.sendPasswordResetEmail(email);
                 showMessage('Password reset link sent! Check your email.', 'success');
                 
                 setTimeout(() => {
