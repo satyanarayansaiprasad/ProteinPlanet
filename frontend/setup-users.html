@@ -142,6 +142,30 @@
             from { opacity: 0; }
             to { opacity: 1; }
         }
+        .user-actions {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .delete-btn {
+            background: #E74C3C;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            padding: 8px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s ease;
+        }
+        .delete-btn:hover {
+            background: #C0392B;
+            transform: translateY(-1px);
+        }
+        .delete-btn:active {
+            transform: translateY(0);
+        }
         .user-info {
             flex: 1;
         }
@@ -331,19 +355,106 @@
                 return;
             }
 
-            usersList.innerHTML = createdUsers.map(user => `
+            usersList.innerHTML = createdUsers.map((user, index) => `
                 <div class="user-item">
                     <div class="user-info">
                         <div class="user-name">${user.name}</div>
                         <div class="user-email">${user.email}</div>
                     </div>
-                    <span class="user-badge badge-${user.userType}">${user.userType}</span>
+                    <div class="user-actions">
+                        <span class="user-badge badge-${user.userType}">${user.userType}</span>
+                        <button class="delete-btn" onclick="deleteUser('${user.email}', ${index})" title="Delete User">
+                            <svg width="16" height="16" viewBox="0 0 20 20" fill="currentColor">
+                                <path d="M6 2l2-2h4l2 2h4v2H2V2h4zM3 6h14l-1 12H4L3 6zm4 2v8h2V8H7zm4 0v8h2V8h-2z"/>
+                            </svg>
+                        </button>
+                    </div>
                 </div>
             `).join('');
         }
 
+        async function deleteUser(email, index) {
+            if (!confirm(`Are you sure you want to delete user: ${email}?`)) {
+                return;
+            }
+
+            try {
+                // Find the user document in Firestore
+                const usersSnapshot = await firebaseDb.collection('users').where('email', '==', email).get();
+                
+                if (usersSnapshot.empty) {
+                    showMessage('User not found in database', 'error');
+                    return;
+                }
+
+                // Delete the user document
+                const userDoc = usersSnapshot.docs[0];
+                await firebaseDb.collection('users').doc(userDoc.id).delete();
+
+                // Remove from local array
+                createdUsers.splice(index, 1);
+                updateUsersList();
+
+                showMessage(`User ${email} deleted successfully`, 'success');
+
+            } catch (error) {
+                console.error('Error deleting user:', error);
+                showMessage('Failed to delete user: ' + error.message, 'error');
+            }
+        }
+
+        // Authentication check - only allow websy656@gmail.com
+        function checkAuthentication() {
+            return new Promise((resolve, reject) => {
+                if (window.firebaseAuth) {
+                    const user = window.firebaseAuth.currentUser;
+                    if (user && user.email === 'websy656@gmail.com') {
+                        resolve(true);
+                    } else {
+                        reject('Access denied. Only websy656@gmail.com can access this page.');
+                    }
+                } else {
+                    // Wait for Firebase to load
+                    const checkAuth = setInterval(() => {
+                        if (window.firebaseAuth) {
+                            clearInterval(checkAuth);
+                            const user = window.firebaseAuth.currentUser;
+                            if (user && user.email === 'websy656@gmail.com') {
+                                resolve(true);
+                            } else {
+                                reject('Access denied. Only websy656@gmail.com can access this page.');
+                            }
+                        }
+                    }, 100);
+                    
+                    setTimeout(() => {
+                        clearInterval(checkAuth);
+                        reject('Firebase authentication not available.');
+                    }, 5000);
+                }
+            });
+        }
+
         // Load existing users on page load
-        window.addEventListener('load', () => {
+        window.addEventListener('load', async () => {
+            try {
+                await checkAuthentication();
+                loadUsers();
+            } catch (error) {
+                console.error('Authentication error:', error);
+                document.body.innerHTML = `
+                    <div style="display: flex; justify-content: center; align-items: center; height: 100vh; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">
+                        <div style="background: white; padding: 40px; border-radius: 16px; text-align: center; box-shadow: 0 8px 32px rgba(0,0,0,0.2); max-width: 500px;">
+                            <h2 style="color: #E74C3C; margin-bottom: 20px;">🔒 Access Denied</h2>
+                            <p style="color: #7F8C8D; margin-bottom: 30px;">${error}</p>
+                            <a href="login.php" style="background: #667eea; color: white; padding: 12px 24px; border-radius: 8px; text-decoration: none; display: inline-block;">Go to Login</a>
+                        </div>
+                    </div>
+                `;
+            }
+        });
+
+        function loadUsers() {
             firebaseDb.collection('users').get().then(snapshot => {
                 if (snapshot.empty) {
                     usersList.innerHTML = '<p style="color: #7F8C8D; font-size: 14px;">No users created yet...</p>';

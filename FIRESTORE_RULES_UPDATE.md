@@ -34,8 +34,10 @@ service cloud.firestore {
       // Users can update their own document
       allow update: if isAuthenticated() && request.auth.uid == userId;
       
-      // No deletes allowed
-      allow delete: if false;
+      // Only admin user (websy656@gmail.com) can delete users
+      allow delete: if isAuthenticated() && 
+             exists(/databases/$(database)/documents/users/$(request.auth.uid)) &&
+             get(/databases/$(database)/documents/users/$(request.auth.uid)).data.email == 'websy656@gmail.com';
     }
     
     // Brands collection
