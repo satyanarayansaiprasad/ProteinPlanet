@@ -403,45 +403,52 @@
             }
         }
 
-        // Authentication check - only allow websy656@gmail.com
-        function checkAuthentication() {
+        // IP Address check - only allow 172.20.10.3
+        function checkIPAccess() {
             return new Promise((resolve, reject) => {
-                if (window.firebaseAuth) {
-                    const user = window.firebaseAuth.currentUser;
-                    if (user && user.email === 'websy656@gmail.com') {
-                        resolve(true);
-                    } else {
-                        reject('Access denied. Only websy656@gmail.com can access this page.');
-                    }
-                } else {
-                    // Wait for Firebase to load
-                    const checkAuth = setInterval(() => {
-                        if (window.firebaseAuth) {
-                            clearInterval(checkAuth);
-                            const user = window.firebaseAuth.currentUser;
-                            if (user && user.email === 'websy656@gmail.com') {
-                                resolve(true);
-                            } else {
-                                reject('Access denied. Only websy656@gmail.com can access this page.');
-                            }
+                // Get the user's IP address
+                fetch('https://api.ipify.org?format=json')
+                    .then(response => response.json())
+                    .then(data => {
+                        const userIP = data.ip;
+                        console.log('User IP:', userIP);
+                        
+                        if (userIP === '172.20.10.3') {
+                            resolve(true);
+                        } else {
+                            reject(`Access denied. This page is only accessible from IP: 172.20.10.3. Your IP: ${userIP}`);
                         }
-                    }, 100);
-                    
-                    setTimeout(() => {
-                        clearInterval(checkAuth);
-                        reject('Firebase authentication not available.');
-                    }, 5000);
-                }
+                    })
+                    .catch(error => {
+                        console.error('Error getting IP:', error);
+                        // Fallback: try alternative IP detection
+                        fetch('https://ipapi.co/json/')
+                            .then(response => response.json())
+                            .then(data => {
+                                const userIP = data.ip;
+                                console.log('User IP (fallback):', userIP);
+                                
+                                if (userIP === '172.20.10.3') {
+                                    resolve(true);
+                                } else {
+                                    reject(`Access denied. This page is only accessible from IP: 172.20.10.3. Your IP: ${userIP}`);
+                                }
+                            })
+                            .catch(fallbackError => {
+                                console.error('Fallback IP detection failed:', fallbackError);
+                                reject('Unable to verify IP address. Access denied.');
+                            });
+                    });
             });
         }
 
         // Load existing users on page load
         window.addEventListener('load', async () => {
             try {
-                await checkAuthentication();
+                await checkIPAccess();
                 loadUsers();
             } catch (error) {
-                console.error('Authentication error:', error);
+                console.error('IP Access error:', error);
                 document.body.innerHTML = `
                     <div style="display: flex; justify-content: center; align-items: center; height: 100vh; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">
                         <div style="background: white; padding: 40px; border-radius: 16px; text-align: center; box-shadow: 0 8px 32px rgba(0,0,0,0.2); max-width: 500px;">
