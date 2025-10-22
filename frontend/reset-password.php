@@ -97,6 +97,32 @@
     
     <!-- Reset Password Script -->
     <script>
+        // Wait for Firebase to be ready
+        function waitForFirebase() {
+            return new Promise((resolve) => {
+                if (window.firebaseAuth) {
+                    console.log('Firebase Auth is ready');
+                    resolve();
+                } else {
+                    console.log('Waiting for Firebase Auth...');
+                    const checkFirebase = setInterval(() => {
+                        if (window.firebaseAuth) {
+                            console.log('Firebase Auth loaded successfully');
+                            clearInterval(checkFirebase);
+                            resolve();
+                        }
+                    }, 100);
+                    
+                    // Timeout after 10 seconds
+                    setTimeout(() => {
+                        clearInterval(checkFirebase);
+                        console.error('Firebase Auth timeout - not loaded after 10 seconds');
+                        resolve();
+                    }, 10000);
+                }
+            });
+        }
+
         const resetForm = document.getElementById('resetForm');
 
         resetForm.addEventListener('submit', async function(e) {
@@ -109,6 +135,30 @@
             submitBtn.disabled = true;
             
             try {
+                // Wait for Firebase to be ready
+                await waitForFirebase();
+                
+                if (!window.firebaseAuth) {
+                    // Fallback: Initialize Firebase directly
+                    console.log('Initializing Firebase as fallback...');
+                    if (typeof firebase !== 'undefined') {
+                        const firebaseConfig = {
+                            apiKey: "AIzaSyBu8FOKjbsy9lD8pl98Dq9y-d-2UCjEQx0",
+                            authDomain: "protein-planet-9cd02.firebaseapp.com",
+                            projectId: "protein-planet-9cd02",
+                            storageBucket: "protein-planet-9cd02.firebasestorage.app",
+                            messagingSenderId: "622242532283",
+                            appId: "1:622242532283:web:c4510d72f147c25b36129e",
+                            measurementId: "G-6V0X1M3RKS"
+                        };
+                        firebase.initializeApp(firebaseConfig);
+                        window.firebaseAuth = firebase.auth();
+                        console.log('Firebase initialized as fallback');
+                    } else {
+                        throw new Error('Firebase SDK not loaded');
+                    }
+                }
+                
                 await window.firebaseAuth.sendPasswordResetEmail(email);
                 showMessage('Password reset link sent! Check your email.', 'success');
                 
