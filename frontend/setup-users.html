@@ -641,7 +641,11 @@
             try {
                 await checkIPAccess();
                 console.log('IP access granted');
-                // Load users only if IP is authorized
+                
+                // Ensure user is authenticated before loading users
+                await ensureAuthentication();
+                
+                // Load users only if IP is authorized and user is authenticated
                 loadUsers();
             } catch (error) {
                 console.error('IP Access error:', error);
@@ -649,6 +653,59 @@
                 showAccessDenied(error);
             }
         });
+
+        // Ensure user is authenticated
+        async function ensureAuthentication() {
+            return new Promise((resolve, reject) => {
+                if (window.firebaseAuth) {
+                    const user = window.firebaseAuth.currentUser;
+                    if (user) {
+                        console.log('User authenticated:', user.email);
+                        resolve(user);
+                    } else {
+                        console.log('No user authenticated, signing in anonymously...');
+                        // Sign in anonymously for setup page access
+                        window.firebaseAuth.signInAnonymously()
+                            .then((userCredential) => {
+                                console.log('Anonymous sign-in successful');
+                                resolve(userCredential.user);
+                            })
+                            .catch((error) => {
+                                console.error('Anonymous sign-in failed:', error);
+                                reject('Authentication required for setup page');
+                            });
+                    }
+                } else {
+                    // Wait for Firebase to load
+                    const checkAuth = setInterval(() => {
+                        if (window.firebaseAuth) {
+                            clearInterval(checkAuth);
+                            const user = window.firebaseAuth.currentUser;
+                            if (user) {
+                                console.log('User authenticated:', user.email);
+                                resolve(user);
+                            } else {
+                                console.log('No user authenticated, signing in anonymously...');
+                                window.firebaseAuth.signInAnonymously()
+                                    .then((userCredential) => {
+                                        console.log('Anonymous sign-in successful');
+                                        resolve(userCredential.user);
+                                    })
+                                    .catch((error) => {
+                                        console.error('Anonymous sign-in failed:', error);
+                                        reject('Authentication required for setup page');
+                                    });
+                            }
+                        }
+                    }, 100);
+                    
+                    setTimeout(() => {
+                        clearInterval(checkAuth);
+                        reject('Firebase authentication not available');
+                    }, 5000);
+                }
+            });
+        }
 
         function showAccessDenied(error) {
             // Replace entire page content with access denied message
