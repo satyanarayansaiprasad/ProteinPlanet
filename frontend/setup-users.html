@@ -444,62 +444,32 @@
 
         // Load existing users on page load
         window.addEventListener('load', async () => {
-            // Load users first, then check IP
-            loadUsers();
-            
-            // Check IP access in background
+            // Check IP access first
             try {
                 await checkIPAccess();
                 console.log('IP access granted');
+                // Load users only if IP is authorized
+                loadUsers();
             } catch (error) {
                 console.error('IP Access error:', error);
-                // Disable the page functionality
-                disablePageAccess(error);
+                // Show access denied message
+                showAccessDenied(error);
             }
         });
 
-        function disablePageAccess(error) {
-            // Disable form submission
-            const resetForm = document.getElementById('resetForm');
-            if (resetForm) {
-                resetForm.style.display = 'none';
-            }
-
-            // Disable delete buttons
-            const deleteButtons = document.querySelectorAll('.delete-btn');
-            deleteButtons.forEach(btn => {
-                btn.disabled = true;
-                btn.style.opacity = '0.5';
-                btn.style.cursor = 'not-allowed';
-            });
-
-            // Add access denied banner
-            const banner = document.createElement('div');
-            banner.style.cssText = `
-                background: #E74C3C;
-                color: white;
-                padding: 15px;
-                text-align: center;
-                position: fixed;
-                top: 0;
-                left: 0;
-                right: 0;
-                z-index: 1000;
-                font-weight: 500;
+        function showAccessDenied(error) {
+            // Replace entire page content with access denied message
+            document.body.innerHTML = `
+                <div style="display: flex; justify-content: center; align-items: center; height: 100vh; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">
+                    <div style="background: white; padding: 40px; border-radius: 16px; text-align: center; box-shadow: 0 8px 32px rgba(0,0,0,0.2); max-width: 500px;">
+                        <div style="font-size: 64px; margin-bottom: 20px;">🔒</div>
+                        <h2 style="color: #E74C3C; margin-bottom: 20px; font-size: 28px;">Access Denied</h2>
+                        <p style="color: #7F8C8D; margin-bottom: 30px; font-size: 16px; line-height: 1.5;">You can't access this page</p>
+                        <p style="color: #95A5A6; margin-bottom: 30px; font-size: 14px;">${error}</p>
+                        <a href="login.php" style="background: #667eea; color: white; padding: 12px 24px; border-radius: 8px; text-decoration: none; display: inline-block; font-weight: 500;">Go to Login</a>
+                    </div>
+                </div>
             `;
-            banner.innerHTML = `🔒 Access Denied: ${error}`;
-            document.body.insertBefore(banner, document.body.firstChild);
-
-            // Add padding to body to account for banner
-            document.body.style.paddingTop = '60px';
-
-            // Disable all interactive elements
-            const interactiveElements = document.querySelectorAll('button, input, select, textarea');
-            interactiveElements.forEach(el => {
-                el.disabled = true;
-                el.style.opacity = '0.5';
-                el.style.cursor = 'not-allowed';
-            });
         }
 
         function loadUsers() {
