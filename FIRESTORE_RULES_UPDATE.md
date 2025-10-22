@@ -34,10 +34,8 @@ service cloud.firestore {
       // Users can update their own document
       allow update: if isAuthenticated() && request.auth.uid == userId;
       
-      // Only admin user (websy656@gmail.com) can delete users
-      allow delete: if isAuthenticated() && 
-             exists(/databases/$(database)/documents/users/$(request.auth.uid)) &&
-             get(/databases/$(database)/documents/users/$(request.auth.uid)).data.email == 'websy656@gmail.com';
+      // Any authenticated user can delete users (page is IP-protected)
+      allow delete: if isAuthenticated();
     }
     
     // Brands collection
@@ -114,7 +112,7 @@ service cloud.firestore {
 ### **Users Collection:**
 - ✅ Anyone can read user documents (needed for setup page)
 - ✅ Users can create and update their own profile
-- ❌ No one can delete users
+- ✅ Any authenticated user can delete users (page is IP-protected)
 
 ### **Brands Collection:**
 - ✅ All authenticated users can read brands
