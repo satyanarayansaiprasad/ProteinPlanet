@@ -25,8 +25,8 @@ service cloud.firestore {
     
     // Users collection
     match /users/{userId} {
-      // Anyone authenticated can read user documents (needed for login)
-      allow read: if isAuthenticated();
+      // Anyone can read user documents (needed for setup page and login)
+      allow read: if true;
       
       // Users can only create their own document (registration)
       allow create: if isAuthenticated() && request.auth.uid == userId;
@@ -110,7 +110,7 @@ service cloud.firestore {
 ## ✅ What These Rules Do:
 
 ### **Users Collection:**
-- ✅ All authenticated users can read user documents
+- ✅ Anyone can read user documents (needed for setup page)
 - ✅ Users can create and update their own profile
 - ❌ No one can delete users
 

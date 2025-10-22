@@ -112,7 +112,8 @@ const routes = {
     '/brand-products': 'brand-products.php',
     '/all-products': 'all-products.php',
     '/stock-history': 'stock-history.php',
-    '/reset-password': 'reset-password.php'
+    '/reset-password': 'reset-password.php',
+    '/setup-users': 'setup-users.html'
 };
 
 // Handle all defined routes
@@ -156,6 +157,29 @@ app.get('*.php', (req, res) => {
                 <body>
                     <h1>404 - File Not Found</h1>
                     <p>The requested PHP file could not be found.</p>
+                    <a href="/">Go to Home</a>
+                </body>
+            </html>
+        `);
+    }
+});
+
+// Handle direct HTML file requests
+app.get('*.html', (req, res) => {
+    const htmlFilePath = path.join(__dirname, 'frontend', req.path);
+    
+    if (fs.existsSync(htmlFilePath)) {
+        const htmlContent = fs.readFileSync(htmlFilePath, 'utf8');
+        res.setHeader('Content-Type', 'text/html; charset=utf-8');
+        res.setHeader('Cache-Control', 'no-cache');
+        res.send(htmlContent);
+    } else {
+        res.status(404).send(`
+            <html>
+                <head><title>404 - File Not Found</title></head>
+                <body>
+                    <h1>404 - File Not Found</h1>
+                    <p>The requested HTML file could not be found.</p>
                     <a href="/">Go to Home</a>
                 </body>
             </html>
