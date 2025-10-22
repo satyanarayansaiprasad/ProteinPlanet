@@ -1,10 +1,17 @@
-# 🔥 Updated Firestore Security Rules
+# 🔥 COMPLETE Firestore Security Rules - COPY THIS TO FIREBASE CONSOLE
 
-## 📋 Copy and paste these rules in your Firebase Console
+## 🚨 CRITICAL: Copy the ENTIRE rules below to Firebase Console
 
-Go to: **Firebase Console** → **Firestore Database** → **Rules** tab
+**Steps:**
+1. Go to: https://console.firebase.google.com/
+2. Select project: **protein-planet-9cd02**
+3. Click **Firestore Database** → **Rules** tab
+4. **DELETE ALL existing rules**
+5. **COPY and PASTE the entire rules below**
+6. Click **"Publish"**
+7. Wait 2-3 minutes for deployment
 
-Replace all existing rules with these:
+## 📋 COMPLETE RULES TO COPY:
 
 ```javascript
 rules_version = '2';
@@ -23,7 +30,7 @@ service cloud.firestore {
              get(/databases/$(database)/documents/users/$(request.auth.uid)).data.userType == 'admin';
     }
     
-    // Users collection
+    // Users collection - FIXED FOR SETUP PAGE
     match /users/{userId} {
       // Anyone can read user documents (needed for setup page and login)
       allow read: if true;
@@ -31,10 +38,10 @@ service cloud.firestore {
       // Users can only create their own document (registration)
       allow create: if isAuthenticated() && request.auth.uid == userId;
       
-      // Users can update their own document OR any authenticated user can update (for setup page)
+      // ANY authenticated user can update users (FIXED for setup page)
       allow update: if isAuthenticated();
       
-      // Any authenticated user can delete users (page is IP-protected)
+      // ANY authenticated user can delete users (setup page is IP-protected)
       allow delete: if isAuthenticated();
     }
     
@@ -160,8 +167,40 @@ service cloud.firestore {
 
 After publishing these rules, your stock management system will work perfectly with proper security!
 
+## 🚨 TROUBLESHOOTING:
+
+### **If you still get "Missing or insufficient permissions" error:**
+
+1. **Check you're in the right project**: Make sure you see "protein-planet-9cd02" in Firebase Console
+2. **Verify rules were published**: Look for "Rules published successfully" message
+3. **Wait 2-3 minutes**: Rules take time to deploy globally
+4. **Clear browser cache**: Refresh the page or try incognito mode
+5. **Check authentication**: Make sure you're logged in when testing
+
+### **Quick Test Rules (Temporary):**
+If nothing works, use these **temporary test rules** (less secure):
+
+```javascript
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    match /{document=**} {
+      allow read, write: if true;
+    }
+  }
+}
+```
+
+**⚠️ WARNING**: These allow anyone to read/write everything. Only use for testing!
+
+### **Verify Rules Are Applied:**
+After publishing, you should see in Firebase Console:
+- ✅ "Rules published successfully"
+- ✅ Rules show `allow update: if isAuthenticated();` for users collection
+- ✅ No syntax errors in the rules editor
+
 ---
 
-**Last Updated:** October 12, 2025  
-**Version:** 1.0.0
+**Last Updated:** October 22, 2025  
+**Version:** 2.0.0 - Fixed for Setup Page
 
