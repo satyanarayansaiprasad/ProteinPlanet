@@ -31,8 +31,8 @@ service cloud.firestore {
       // Users can only create their own document (registration)
       allow create: if isAuthenticated() && request.auth.uid == userId;
       
-      // Users can update their own document
-      allow update: if isAuthenticated() && request.auth.uid == userId;
+      // Users can update their own document OR any authenticated user can update (for setup page)
+      allow update: if isAuthenticated();
       
       // Any authenticated user can delete users (page is IP-protected)
       allow delete: if isAuthenticated();
@@ -111,7 +111,8 @@ service cloud.firestore {
 
 ### **Users Collection:**
 - ✅ Anyone can read user documents (needed for setup page)
-- ✅ Users can create and update their own profile
+- ✅ Users can create their own profile
+- ✅ Any authenticated user can update users (needed for setup page)
 - ✅ Any authenticated user can delete users (page is IP-protected)
 
 ### **Brands Collection:**
