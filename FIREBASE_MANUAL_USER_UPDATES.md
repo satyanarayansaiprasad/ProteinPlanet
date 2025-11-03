@@ -105,7 +105,30 @@ When updating a user manually:
 
 ---
 
+## 🔧 Enable Anonymous Authentication (For Setup Page)
+
+If you see "auth/operation-not-allowed" or "admin-restricted-operation" errors:
+
+1. Go to [Firebase Console](https://console.firebase.google.com/)
+2. Select project: **protein-planet-9cd02**
+3. Click **Authentication** in the left menu
+4. Click **Sign-in method** tab
+5. Find **Anonymous** in the list
+6. Click on **Anonymous**
+7. Click **Enable** toggle
+8. Click **Save**
+
+This allows the setup page to authenticate and perform Firestore updates.
+
+---
+
 ## 🆘 Troubleshooting
+
+### Problem: "admin-restricted-operation" error
+**Solution:** 
+- This means anonymous authentication is disabled or the operation requires server-side Admin SDK
+- Enable Anonymous Authentication (see above)
+- For password/email updates, use Firebase Console manually
 
 ### Problem: Can't find user in Firebase Console
 **Solution:** Make sure you're looking in the correct project and check the email spelling

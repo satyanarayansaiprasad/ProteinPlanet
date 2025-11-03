@@ -556,17 +556,24 @@
 
             try {
                 // Ensure we're authenticated before making updates
-                let currentAuthUser = null;
-                try {
-                    currentAuthUser = await ensureAuthentication();
-                    console.log('Authenticated for update:', currentAuthUser);
-                } catch (authError) {
-                    console.warn('Authentication failed, trying anonymous sign-in:', authError);
-                    // Try to sign in anonymously if not already authenticated
-                    if (window.firebaseAuth && !window.firebaseAuth.currentUser) {
-                        await window.firebaseAuth.signInAnonymously();
-                        currentAuthUser = window.firebaseAuth.currentUser;
+                // Note: For Firestore updates, we need to be authenticated
+                let currentAuthUser = window.firebaseAuth ? window.firebaseAuth.currentUser : null;
+                
+                if (!currentAuthUser) {
+                    // Try anonymous sign-in if not authenticated
+                    try {
+                        if (window.firebaseAuth) {
+                            const anonymousCred = await window.firebaseAuth.signInAnonymously();
+                            currentAuthUser = anonymousCred.user;
+                            console.log('Anonymous authentication successful for update');
+                        }
+                    } catch (authError) {
+                        console.warn('Anonymous authentication failed:', authError);
+                        // Continue anyway - some Firestore rules might allow unauthenticated updates
+                        // If it fails, we'll get a permission-denied error which is handled below
                     }
+                } else {
+                    console.log('Already authenticated for update:', currentAuthUser.uid);
                 }
 
                 // Find the user document in Firestore by email
@@ -609,16 +616,10 @@
 
                 // Update password if provided
                 if (newPassword && newPassword.length >= 6) {
-                    try {
-                        // Note: Client-side password updates require the user to be signed in
-                        // Alternative: Send password reset email or use Firebase Console
-                        // For setup page, we'll trigger a password reset email
-                        await window.firebaseAuth.sendPasswordResetEmail(newEmail || user.email);
-                        showMessage('📧 Password reset email sent! User can set new password via the email link.', 'success');
-                    } catch (pwdError) {
-                        console.error('Error sending password reset:', pwdError);
-                        showMessage('⚠️ Could not send password reset email. Use Firebase Console to update password manually.', 'error');
-                    }
+                    // Note: Password updates from client-side require the user to be signed in
+                    // For setup page, we'll note that password needs manual update
+                    console.log('Password update requested. Manual update required via Firebase Console.');
+                    showMessage('⚠️ Password cannot be updated directly. Please use Firebase Console: Authentication → Users → Reset password. See FIREBASE_MANUAL_USER_UPDATES.md for details.', 'error');
                 }
 
                 // Update local array
@@ -640,23 +641,35 @@
                 // Reload users from Firestore to get latest data
                 await loadUsers();
                 
-                const successMsg = newPassword && newPassword.length >= 6 
-                    ? `User ${newName} updated successfully! Password reset email sent to ${newEmail || user.email}.`
-                    : `User ${newName} updated successfully!`;
+                let successMsg = `User ${newName} updated successfully!`;
+                
+                if (newPassword && newPassword.length >= 6) {
+                    successMsg += ' Note: Password update requires Firebase Console (see error message above).';
+                }
+                
                 showMessage(`✅ ${successMsg}`, 'success');
 
             } catch (error) {
                 console.error('Error updating user:', error);
                 
                 let errorMessage = 'Failed to update user: ' + error.message;
+                let helpMessage = '';
                 
                 if (error.code === 'permission-denied') {
-                    errorMessage = 'Permission denied. Make sure Firestore rules allow updates and you are authenticated.';
+                    errorMessage = 'Permission denied. Firestore rules may be blocking updates.';
+                    helpMessage = 'Check Firestore rules allow authenticated updates. See FIRESTORE_RULES_UPDATE.md';
                 } else if (error.code === 'unauthenticated') {
-                    errorMessage = 'Authentication required. Please refresh the page.';
+                    errorMessage = 'Authentication required.';
+                    helpMessage = 'Please refresh the page or enable Anonymous Authentication in Firebase Console.';
+                } else if (error.code === 'auth/admin-restricted-operation' || error.message.includes('administrators only')) {
+                    errorMessage = 'This operation requires Firebase Admin SDK (server-side only).';
+                    helpMessage = 'To update password/email, use Firebase Console manually. See FIREBASE_MANUAL_USER_UPDATES.md';
+                } else if (error.code === 'auth/operation-not-allowed') {
+                    errorMessage = 'Anonymous authentication is not enabled.';
+                    helpMessage = 'Go to Firebase Console → Authentication → Sign-in method → Enable Anonymous.';
                 }
                 
-                showMessage(`❌ ${errorMessage}`, 'error');
+                showMessage(`❌ ${errorMessage}${helpMessage ? '<br>💡 ' + helpMessage : ''}`, 'error');
             }
         }
 
