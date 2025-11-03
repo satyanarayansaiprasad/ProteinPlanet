@@ -606,7 +606,7 @@
                         const userIP = data.ip;
                         console.log('User IP:', userIP);
                         
-                        if (userIP === '171.48.105.152') {
+                        if (userIP === '171.48.105.152' || userIP === '103.200.88.194') {
                             resolve(true);
                         } else {
                             reject(`Access denied. This page is only accessible from IP: 171.48.105.152. Your IP: ${userIP}`);
@@ -621,7 +621,7 @@
                                 const userIP = data.ip;
                                 console.log('User IP (fallback):', userIP);
                                 
-                                if (userIP === '171.48.105.152') {
+                                if (userIP === '171.48.105.152' || userIP === '103.200.88.194') {
                                     resolve(true);
                                 } else {
                                     reject(`Access denied. This page is only accessible from IP: 171.48.105.152. Your IP: ${userIP}`);
