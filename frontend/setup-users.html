@@ -606,10 +606,10 @@
                         const userIP = data.ip;
                         console.log('User IP:', userIP);
                         
-                        if (userIP === '27.60.140.75') {
+                        if (userIP === '171.48.105.152') {
                             resolve(true);
                         } else {
-                            reject(`Access denied. This page is only accessible from IP: 27.60.140.75. Your IP: ${userIP}`);
+                            reject(`Access denied. This page is only accessible from IP: 171.48.105.152. Your IP: ${userIP}`);
                         }
                     })
                     .catch(error => {
@@ -621,10 +621,10 @@
                                 const userIP = data.ip;
                                 console.log('User IP (fallback):', userIP);
                                 
-                                if (userIP === '27.60.140.75') {
+                                if (userIP === '171.48.105.152') {
                                     resolve(true);
                                 } else {
-                                    reject(`Access denied. This page is only accessible from IP: 27.60.140.75. Your IP: ${userIP}`);
+                                    reject(`Access denied. This page is only accessible from IP: 171.48.105.152. Your IP: ${userIP}`);
                                 }
                             })
                             .catch(fallbackError => {
