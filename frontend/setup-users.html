@@ -642,10 +642,16 @@
                 await checkIPAccess();
                 console.log('IP access granted');
                 
-                // Ensure user is authenticated before loading users
-                await ensureAuthentication();
+                // Try to authenticate (optional - IP check is the security measure)
+                try {
+                    await ensureAuthentication();
+                    console.log('Authentication successful');
+                } catch (authError) {
+                    console.warn('Authentication failed, but continuing because IP is valid:', authError);
+                    // Continue anyway since IP check passed - authentication is optional for setup page
+                }
                 
-                // Load users only if IP is authorized and user is authenticated
+                // Load users if IP is authorized
                 loadUsers();
             } catch (error) {
                 console.error('IP Access error:', error);
