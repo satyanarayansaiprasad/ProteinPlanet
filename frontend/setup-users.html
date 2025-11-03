@@ -519,7 +519,8 @@
                     </div>
                     <div class="form-group">
                         <label>New Password (optional)</label>
-                        <input type="password" id="edit-password-${index}" placeholder="Leave blank to keep current password">
+                        <input type="password" id="edit-password-${index}" placeholder="Min 6 characters - will send reset email">
+                        <small style="color: #7F8C8D; font-size: 12px;">Note: Password changes will send a reset email to the user</small>
                     </div>
                 </div>
                 <div class="form-actions">
@@ -554,7 +555,21 @@
             }
 
             try {
-                // Find the user document in Firestore
+                // Ensure we're authenticated before making updates
+                let currentAuthUser = null;
+                try {
+                    currentAuthUser = await ensureAuthentication();
+                    console.log('Authenticated for update:', currentAuthUser);
+                } catch (authError) {
+                    console.warn('Authentication failed, trying anonymous sign-in:', authError);
+                    // Try to sign in anonymously if not already authenticated
+                    if (window.firebaseAuth && !window.firebaseAuth.currentUser) {
+                        await window.firebaseAuth.signInAnonymously();
+                        currentAuthUser = window.firebaseAuth.currentUser;
+                    }
+                }
+
+                // Find the user document in Firestore by email
                 const usersSnapshot = await firebaseDb.collection('users').where('email', '==', user.email).get();
                 
                 if (usersSnapshot.empty) {
@@ -563,19 +578,53 @@
                 }
 
                 const userDoc = usersSnapshot.docs[0];
+                const userId = userDoc.id; // This is the Firebase Auth UID
+                
                 const updateData = {
                     name: newName,
-                    email: newEmail,
                     userType: newType
                 };
 
+                // Only update email in Firestore if it changed
+                if (newEmail !== user.email) {
+                    updateData.email = newEmail;
+                }
+
                 // Update user document in Firestore
-                await firebaseDb.collection('users').doc(userDoc.id).update(updateData);
+                await firebaseDb.collection('users').doc(userId).update(updateData);
+
+                // Update Firebase Auth email if changed
+                if (newEmail !== user.email) {
+                    try {
+                        // Get the Firebase Auth user by UID (requires Admin SDK or signing in)
+                        // Since we can't use Admin SDK from client, we'll need to handle this differently
+                        // For now, just update Firestore and show a note
+                        console.warn('Email change in Firebase Auth requires Admin SDK or user re-authentication');
+                        showMessage('⚠️ Email updated in database. To change Firebase Auth email, use password reset feature or Firebase Console.', 'success');
+                    } catch (emailError) {
+                        console.error('Error updating email in Auth:', emailError);
+                        // Continue anyway since Firestore was updated
+                    }
+                }
+
+                // Update password if provided
+                if (newPassword && newPassword.length >= 6) {
+                    try {
+                        // Note: Client-side password updates require the user to be signed in
+                        // Alternative: Send password reset email or use Firebase Console
+                        // For setup page, we'll trigger a password reset email
+                        await window.firebaseAuth.sendPasswordResetEmail(newEmail || user.email);
+                        showMessage('📧 Password reset email sent! User can set new password via the email link.', 'success');
+                    } catch (pwdError) {
+                        console.error('Error sending password reset:', pwdError);
+                        showMessage('⚠️ Could not send password reset email. Use Firebase Console to update password manually.', 'error');
+                    }
+                }
 
                 // Update local array
                 createdUsers[index] = {
                     name: newName,
-                    email: newEmail,
+                    email: newEmail !== user.email ? newEmail : user.email,
                     userType: newType
                 };
 
@@ -588,11 +637,26 @@
                     editForm.remove();
                 }
 
-                showMessage(`User ${newName} updated successfully`, 'success');
+                // Reload users from Firestore to get latest data
+                await loadUsers();
+                
+                const successMsg = newPassword && newPassword.length >= 6 
+                    ? `User ${newName} updated successfully! Password reset email sent to ${newEmail || user.email}.`
+                    : `User ${newName} updated successfully!`;
+                showMessage(`✅ ${successMsg}`, 'success');
 
             } catch (error) {
                 console.error('Error updating user:', error);
-                showMessage('Failed to update user: ' + error.message, 'error');
+                
+                let errorMessage = 'Failed to update user: ' + error.message;
+                
+                if (error.code === 'permission-denied') {
+                    errorMessage = 'Permission denied. Make sure Firestore rules allow updates and you are authenticated.';
+                } else if (error.code === 'unauthenticated') {
+                    errorMessage = 'Authentication required. Please refresh the page.';
+                }
+                
+                showMessage(`❌ ${errorMessage}`, 'error');
             }
         }
 
@@ -728,8 +792,13 @@
             `;
         }
 
-        function loadUsers() {
-            firebaseDb.collection('users').get().then(snapshot => {
+        async function loadUsers() {
+            try {
+                // Clear existing users array
+                createdUsers.length = 0;
+                
+                const snapshot = await firebaseDb.collection('users').get();
+                
                 if (snapshot.empty) {
                     usersList.innerHTML = '<p style="color: #7F8C8D; font-size: 14px;">No users created yet...</p>';
                     return;
@@ -744,10 +813,10 @@
                     });
                 });
                 updateUsersList();
-            }).catch(error => {
+            } catch (error) {
                 console.error('Error loading users:', error);
-                usersList.innerHTML = '<p style="color: #E74C3C; font-size: 14px;">⚠️ Error loading users. Make sure Firestore is enabled!</p>';
-            });
+                usersList.innerHTML = '<p style="color: #E74C3C; font-size: 14px;">⚠️ Error loading users. Make sure Firestore is enabled and rules allow reading!</p>';
+            }
         }
     </script>
 </body>
