@@ -384,12 +384,6 @@
             }
         }
 
-            } catch (error) {
-                console.error('Error loading categories:', error);
-                showMessage('Error loading categories: ' + error.message, 'error');
-            }
-        }
-
         // Open add modal
         function openAddModal() {
             editingCategoryId = null;
