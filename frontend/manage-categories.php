@@ -26,37 +26,73 @@
             transform: translateY(-2px);
             box-shadow: 0 4px 12px rgba(255,107,53,0.3);
         }
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        .search-bar {
+            margin-bottom: 25px;
+        }
+        .search-bar input {
+            width: 100%;
+            max-width: 400px;
+            padding: 12px 20px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-family: 'Poppins', sans-serif;
+            font-size: 15px;
+        }
+        .search-bar input:focus {
+            outline: none;
+            border-color: #FF6B35;
+        }
         .categories-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
-            gap: 20px;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 25px;
             margin-bottom: 30px;
         }
         .category-card {
             background: white;
-            padding: 20px;
-            border-radius: 12px;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
-            transition: all 0.3s;
+            padding: 25px;
+            border-radius: 16px;
+            box-shadow: 0 2px 12px rgba(0,0,0,0.08);
+            transition: all 0.3s ease;
+            border: 1px solid #f0f0f0;
+            display: flex;
+            flex-direction: column;
         }
         .category-card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+            transform: translateY(-8px);
+            box-shadow: 0 8px 24px rgba(0,0,0,0.12);
+            border-color: #FF6B35;
         }
         .category-name {
-            font-size: 20px;
-            font-weight: 600;
+            font-size: 22px;
+            font-weight: 700;
             color: #2C3E50;
-            margin-bottom: 10px;
+            margin-bottom: 12px;
+            letter-spacing: -0.5px;
         }
         .category-meta {
-            font-size: 12px;
+            font-size: 13px;
             color: #7F8C8D;
             margin-bottom: 15px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid #f0f0f0;
+        }
+        .category-description {
+            color: #5A6C7D;
+            font-size: 14px;
+            line-height: 1.6;
+            margin-bottom: 20px;
+            flex-grow: 1;
         }
         .category-actions {
             display: flex;
             gap: 10px;
+            margin-top: auto;
         }
         .btn-edit, .btn-delete {
             flex: 1;
@@ -201,6 +237,10 @@
             </button>
         </div>
 
+        <div class="search-bar">
+            <input type="text" id="searchInput" placeholder="🔍 Search categories by name or description...">
+        </div>
+
         <div id="categoriesContainer">
             <div class="empty-state">
                 <div class="empty-state-icon">🔄</div>
@@ -241,10 +281,12 @@
     <script>
         let editingCategoryId = null;
 
+        let allCategories = [];
+
         // Load all categories
         async function loadCategories() {
             try {
-                const snapshot = await firebaseDb.collection('categories').orderBy('name').get();
+                const snapshot = await firebaseDb.collection('categories').get();
                 const container = document.getElementById('categoriesContainer');
 
                 if (snapshot.empty) {
@@ -255,31 +297,92 @@
                             <p>Click "Add New Category" to get started</p>
                         </div>
                     `;
+                    allCategories = [];
                     return;
                 }
 
-                let html = '<div class="categories-grid">';
+                // Convert to array and sort alphabetically (case-insensitive)
+                allCategories = [];
                 snapshot.forEach(doc => {
-                    const category = doc.data();
-                    const createdDate = category.createdAt ? new Date(category.createdAt.toDate()).toLocaleDateString() : 'N/A';
-                    html += `
-                        <div class="category-card">
-                            <div class="category-name">${category.name}</div>
-                            <div class="category-meta">Added: ${createdDate}</div>
-                            ${category.description ? `<p style="color: #7F8C8D; font-size: 14px; margin-bottom: 15px;">${category.description}</p>` : ''}
-                            <div class="category-actions">
-                                <button class="btn-edit" onclick="editCategory('${doc.id}', '${category.name}', '${category.description || ''}')">
-                                    ✏️ Edit
-                                </button>
-                                <button class="btn-delete" onclick="deleteCategory('${doc.id}', '${category.name}')">
-                                    🗑️ Delete
-                                </button>
-                            </div>
-                        </div>
-                    `;
+                    allCategories.push({
+                        id: doc.id,
+                        ...doc.data()
+                    });
                 });
-                html += '</div>';
-                container.innerHTML = html;
+
+                // Sort alphabetically by name (case-insensitive)
+                allCategories.sort((a, b) => {
+                    const nameA = (a.name || '').toLowerCase();
+                    const nameB = (b.name || '').toLowerCase();
+                    return nameA.localeCompare(nameB);
+                });
+
+                renderCategories(allCategories);
+
+            } catch (error) {
+                console.error('Error loading categories:', error);
+                showMessage('Error loading categories: ' + error.message, 'error');
+            }
+        }
+
+        // Render categories
+        function renderCategories(categories) {
+            const container = document.getElementById('categoriesContainer');
+            
+            if (categories.length === 0) {
+                container.innerHTML = `
+                    <div class="empty-state">
+                        <div class="empty-state-icon">🔍</div>
+                        <h3>No Categories Found</h3>
+                        <p>Try adjusting your search</p>
+                    </div>
+                `;
+                return;
+            }
+
+            let html = '<div class="categories-grid">';
+            categories.forEach(category => {
+                const createdDate = category.createdAt ? new Date(category.createdAt.toDate()).toLocaleDateString() : 'N/A';
+                const escapedName = (category.name || '').replace(/'/g, "\\'");
+                const escapedDesc = (category.description || '').replace(/'/g, "\\'").replace(/\n/g, ' ');
+                html += `
+                    <div class="category-card">
+                        <div class="category-name">${category.name || 'Unnamed Category'}</div>
+                        <div class="category-meta">📅 Added: ${createdDate}</div>
+                        ${category.description ? `<div class="category-description">${category.description}</div>` : '<div class="category-description" style="color: #BDC3C7; font-style: italic;">No description</div>'}
+                        <div class="category-actions">
+                            <button class="btn-edit" onclick="editCategory('${category.id}', '${escapedName}', '${escapedDesc}')">
+                                ✏️ Edit
+                            </button>
+                            <button class="btn-delete" onclick="deleteCategory('${category.id}', '${escapedName}')">
+                                🗑️ Delete
+                            </button>
+                        </div>
+                    </div>
+                `;
+            });
+            html += '</div>';
+            container.innerHTML = html;
+        }
+
+        // Search functionality
+        function setupSearch() {
+            const searchInput = document.getElementById('searchInput');
+            if (searchInput) {
+                searchInput.addEventListener('input', (e) => {
+                    const searchTerm = e.target.value.toLowerCase().trim();
+                    if (searchTerm === '') {
+                        renderCategories(allCategories);
+                    } else {
+                        const filtered = allCategories.filter(category => 
+                            (category.name || '').toLowerCase().includes(searchTerm) ||
+                            (category.description || '').toLowerCase().includes(searchTerm)
+                        );
+                        renderCategories(filtered);
+                    }
+                });
+            }
+        }
 
             } catch (error) {
                 console.error('Error loading categories:', error);
@@ -387,6 +490,11 @@
 
         // Load categories on page load
         loadCategories();
+        
+        // Setup search after categories are loaded
+        setTimeout(() => {
+            setupSearch();
+        }, 500);
     </script>
 </body>
 </html>

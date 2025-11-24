@@ -27,37 +27,73 @@
             transform: translateY(-2px);
             box-shadow: 0 4px 12px rgba(255,107,53,0.3);
         }
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        .search-bar {
+            margin-bottom: 25px;
+        }
+        .search-bar input {
+            width: 100%;
+            max-width: 400px;
+            padding: 12px 20px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-family: 'Poppins', sans-serif;
+            font-size: 15px;
+        }
+        .search-bar input:focus {
+            outline: none;
+            border-color: #FF6B35;
+        }
         .brands-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
-            gap: 20px;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 25px;
             margin-bottom: 30px;
         }
         .brand-card {
             background: white;
-            padding: 20px;
-            border-radius: 12px;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
-            transition: all 0.3s;
+            padding: 25px;
+            border-radius: 16px;
+            box-shadow: 0 2px 12px rgba(0,0,0,0.08);
+            transition: all 0.3s ease;
+            border: 1px solid #f0f0f0;
+            display: flex;
+            flex-direction: column;
         }
         .brand-card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+            transform: translateY(-8px);
+            box-shadow: 0 8px 24px rgba(0,0,0,0.12);
+            border-color: #FF6B35;
         }
         .brand-name {
-            font-size: 20px;
-            font-weight: 600;
+            font-size: 22px;
+            font-weight: 700;
             color: #2C3E50;
-            margin-bottom: 10px;
+            margin-bottom: 12px;
+            letter-spacing: -0.5px;
         }
         .brand-meta {
-            font-size: 12px;
+            font-size: 13px;
             color: #7F8C8D;
             margin-bottom: 15px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid #f0f0f0;
+        }
+        .brand-description {
+            color: #5A6C7D;
+            font-size: 14px;
+            line-height: 1.6;
+            margin-bottom: 20px;
+            flex-grow: 1;
         }
         .brand-actions {
             display: flex;
             gap: 10px;
+            margin-top: auto;
         }
         .btn-edit, .btn-delete {
             flex: 1;
@@ -202,6 +238,10 @@
             </button>
         </div>
 
+        <div class="search-bar">
+            <input type="text" id="searchInput" placeholder="🔍 Search brands by name or description...">
+        </div>
+
         <div id="brandsContainer">
             <div class="empty-state">
                 <div class="empty-state-icon">🔄</div>
@@ -242,10 +282,12 @@
     <script>
         let editingBrandId = null;
 
+        let allBrands = [];
+
         // Load all brands
         async function loadBrands() {
             try {
-                const snapshot = await firebaseDb.collection('brands').orderBy('name').get();
+                const snapshot = await firebaseDb.collection('brands').get();
                 const container = document.getElementById('brandsContainer');
 
                 if (snapshot.empty) {
@@ -256,31 +298,92 @@
                             <p>Click "Add New Brand" to get started</p>
                         </div>
                     `;
+                    allBrands = [];
                     return;
                 }
 
-                let html = '<div class="brands-grid">';
+                // Convert to array and sort alphabetically (case-insensitive)
+                allBrands = [];
                 snapshot.forEach(doc => {
-                    const brand = doc.data();
-                    const createdDate = brand.createdAt ? new Date(brand.createdAt.toDate()).toLocaleDateString() : 'N/A';
-                    html += `
-                        <div class="brand-card">
-                            <div class="brand-name">${brand.name}</div>
-                            <div class="brand-meta">Added: ${createdDate}</div>
-                            ${brand.description ? `<p style="color: #7F8C8D; font-size: 14px; margin-bottom: 15px;">${brand.description}</p>` : ''}
-                            <div class="brand-actions">
-                                <button class="btn-edit" onclick="editBrand('${doc.id}', '${brand.name}', '${brand.description || ''}')">
-                                    ✏️ Edit
-                                </button>
-                                <button class="btn-delete" onclick="deleteBrand('${doc.id}', '${brand.name}')">
-                                    🗑️ Delete
-                                </button>
-                            </div>
-                        </div>
-                    `;
+                    allBrands.push({
+                        id: doc.id,
+                        ...doc.data()
+                    });
                 });
-                html += '</div>';
-                container.innerHTML = html;
+
+                // Sort alphabetically by name (case-insensitive)
+                allBrands.sort((a, b) => {
+                    const nameA = (a.name || '').toLowerCase();
+                    const nameB = (b.name || '').toLowerCase();
+                    return nameA.localeCompare(nameB);
+                });
+
+                renderBrands(allBrands);
+
+            } catch (error) {
+                console.error('Error loading brands:', error);
+                showMessage('Error loading brands: ' + error.message, 'error');
+            }
+        }
+
+        // Render brands
+        function renderBrands(brands) {
+            const container = document.getElementById('brandsContainer');
+            
+            if (brands.length === 0) {
+                container.innerHTML = `
+                    <div class="empty-state">
+                        <div class="empty-state-icon">🔍</div>
+                        <h3>No Brands Found</h3>
+                        <p>Try adjusting your search</p>
+                    </div>
+                `;
+                return;
+            }
+
+            let html = '<div class="brands-grid">';
+            brands.forEach(brand => {
+                const createdDate = brand.createdAt ? new Date(brand.createdAt.toDate()).toLocaleDateString() : 'N/A';
+                const escapedName = (brand.name || '').replace(/'/g, "\\'");
+                const escapedDesc = (brand.description || '').replace(/'/g, "\\'").replace(/\n/g, ' ');
+                html += `
+                    <div class="brand-card">
+                        <div class="brand-name">${brand.name || 'Unnamed Brand'}</div>
+                        <div class="brand-meta">📅 Added: ${createdDate}</div>
+                        ${brand.description ? `<div class="brand-description">${brand.description}</div>` : '<div class="brand-description" style="color: #BDC3C7; font-style: italic;">No description</div>'}
+                        <div class="brand-actions">
+                            <button class="btn-edit" onclick="editBrand('${brand.id}', '${escapedName}', '${escapedDesc}')">
+                                ✏️ Edit
+                            </button>
+                            <button class="btn-delete" onclick="deleteBrand('${brand.id}', '${escapedName}')">
+                                🗑️ Delete
+                            </button>
+                        </div>
+                    </div>
+                `;
+            });
+            html += '</div>';
+            container.innerHTML = html;
+        }
+
+        // Search functionality
+        function setupSearch() {
+            const searchInput = document.getElementById('searchInput');
+            if (searchInput) {
+                searchInput.addEventListener('input', (e) => {
+                    const searchTerm = e.target.value.toLowerCase().trim();
+                    if (searchTerm === '') {
+                        renderBrands(allBrands);
+                    } else {
+                        const filtered = allBrands.filter(brand => 
+                            (brand.name || '').toLowerCase().includes(searchTerm) ||
+                            (brand.description || '').toLowerCase().includes(searchTerm)
+                        );
+                        renderBrands(filtered);
+                    }
+                });
+            }
+        }
 
             } catch (error) {
                 console.error('Error loading brands:', error);
@@ -388,6 +491,11 @@
 
         // Load brands on page load
         loadBrands();
+        
+        // Setup search after brands are loaded
+        setTimeout(() => {
+            setupSearch();
+        }, 500);
     </script>
 </body>
 </html>
