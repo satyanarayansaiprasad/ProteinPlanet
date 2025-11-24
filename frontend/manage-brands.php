@@ -385,12 +385,6 @@
             }
         }
 
-            } catch (error) {
-                console.error('Error loading brands:', error);
-                showMessage('Error loading brands: ' + error.message, 'error');
-            }
-        }
-
         // Open add modal
         function openAddModal() {
             editingBrandId = null;
